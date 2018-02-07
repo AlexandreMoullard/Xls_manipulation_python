@@ -3,6 +3,7 @@ from tkinter.ttk import *
 from PIL import Image, ImageTk
 from tkinter import filedialog
 import os
+import file_generator
 
 class OptionsWindow():
     def __init__(self, dirBancDeTest=None):
@@ -21,7 +22,8 @@ class OptionsWindow():
             root.resizable(width=False, height=False)
             img = PhotoImage(file='srett.png')
             root.tk.call('wm', 'iconphoto', root._w, img)
-            #root.iconbitmap('srett.png') not working on linux
+            if os.name == 'nt':
+                root.iconbitmap('srett.png') #not working on linux
 
             style = Style()
             style.configure('.', font=('Helvetica', 16), background="#3d4f6f")
@@ -38,7 +40,7 @@ class OptionsWindow():
             self.dirExp = StringVar()
             self.resultTextBdt3Var = StringVar()
             
-            #Champ PVAI
+            #Champ PVAI (servant de template)
             master = Frame(root, padding=5)
             master.pack()
             Label(master, text="PV à remplir (.xlsx)", style="BW.TLabel").grid(row=0, column=0)
@@ -84,42 +86,44 @@ class OptionsWindow():
     def selectCSV(self, step):
         dirname = filedialog.askopenfilename(parent=self.root,initialdir="/",title='Please select a csv file',filetypes=[('csv files','.csv'),('all files','.*')])
         if isinstance(dirname, str):
-            dirname = dirname.replace('/', '\\')
-        if step == 1:
-            self.dirBdt1Var.set(dirname)
-        elif step == 2:
-        	self.dirBdt2Var.set(dirname)
+            if os.name == 'nt':
+                dirname = dirname.replace('/', '\\') #Windows compatibility
+
+            if step == 1:
+                self.dirBdt1Var.set(dirname)
+            elif step == 2:
+        	    self.dirBdt2Var.set(dirname)
 
     def selectXlsx(self, step):
         dirname = filedialog.askopenfilename(parent=self.root,initialdir="/",title='Please select a xlsx file',filetypes=[('xlsx files','.xlsx'),('all files','.*')])
         if isinstance(dirname, str):
-            dirname = dirname.replace('/', '\\')
-        if step == 1:
-            self.dirPv.set(dirname)
-        elif step == 2:
-            self.dirExp.set(dirname)
+            if os.name == 'nt':
+                dirname = dirname.replace('/', '\\') #Windows compatibility
+
+            if step == 1:
+                self.dirPv.set(dirname)
+            elif step == 2:
+                self.dirExp.set(dirname)
 
 
     def validate(self, file0, file1, file2, file3):
-
         args = (file0, file1, file2, file3)
         textBdtVar = (self.resultTextBdt0Var, self.resultTextBdt1Var, self.resultTextBdt2Var, self.resultTextBdt3Var)
-        i = 0; j = 0
+        i = 0; validation_counter = 0
 
         for file in args:
             if file and os.path.exists(file):
                 self.file = file
-                j += 1
+                validation_counter += 1
                 textBdtVar[i].set('')
             else:
                 self.file = None
                 textBdtVar[i].set('Please select a valid file')
             i += 1
 
-        #j = 4 means all 4 files are ok
-        if j == 4:
+        if validation_counter == len(args):
         	self.root.destroy()
-        	#run here next code
+        	file_generator.generate(file1)
            
 if __name__ == "__main__":
     OptionsWindow().show()
