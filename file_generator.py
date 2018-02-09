@@ -2,29 +2,57 @@ from openpyxl import Workbook
 from openpyxl.compat import range
 from openpyxl import load_workbook
 import pandas as pd
-#from openpyxl.cell import get_column_letter
-#from numpy import column_stack, arange, pi, sin
+import re
 
-file_path1 = "/home/alex/Dropbox/Echange et travaux/Xls Python/Git/Files/Step_1_lot_1727.csv"
-
-
-def generate(file_path):
-    rf = pd.read_csv(file_path)
+def generate(template_file_path, testbench1_file_path, first_PN):
+    rf = pd.read_csv(testbench1_file_path)
     product_list = list(rf['SN'])
-    #{'E00210', 'E00203'}
     number_of_products = len(product_list)
-    print(number_of_products)
-    print(product_list)
+    wb = {}
+    loop_count_i = 0
+    patern = r"(\d{7})(\.)(\d{3})"
+    other_patern = r"\d{7}"
+    patern1 = r"\d{1}"
+    patern2 = r"\d{2}"
+    patern3 = r"\d{3}"
 
-generate(file_path1)
-    #wb = {}
-"""
-    for i in product_list :
-        wb[i] = load_workbook(filename='template.xlsx')
-        dest_filename = 'PVAI_'+ i + '.xlsx'
-        ws1 = wb[i].active
-        ws1.title = i
-        ws1['B5'] = "resultat de" + i
-        ws1['C3'] = 'hello'
-        wb[i].save(filename = dest_filename)
-        """
+    #Vérification de first_PN, deux cas : 1000XXX.XXX ou 1000XXX resp patern et other_patern
+    if re.search(patern, first_PN):
+        m = re.search(patern, first_PN)
+        first_PN0 = m.group(1) + m.group(2)
+        first_PN1 = m.group(3)
+    elif re.search(other_patern, first_PN):
+        first_PN0 = first_PN
+        first_PN1 = ""
+
+    for product in product_list :
+        if re.search(patern, first_PN):
+            PN = first_PN0
+            PNext = int(first_PN1) + loop_count_i
+            
+            #Completing number of digits from integer, needs to be XXX
+            if re.match(patern3, str(PNext)):
+                PNext = str(PNext)
+            elif re.match(patern2, str(PNext)):
+                PNext = "0"+str(PNext)
+            else:
+                PNext = "00"+str(PNext)
+        
+        elif re.search(other_patern, first_PN):
+            PN = ""
+            PNext = str(int(first_PN0) + loop_count_i)
+
+        wb[product] = load_workbook(filename= template_file_path)
+        dest_filename = str(PN) + PNext + '.AA' + '_'+ product +'_PVAI.xlsx'
+        ws1 = wb[product].active
+        ws1.title = product
+        ws1['D13'] = product
+        ws1['D11'] = number_of_products
+        wb[product].save(filename = dest_filename)
+        loop_count_i += 1
+
+if __name__ == "__main__":
+    file_path1 = "/home/alex/Bureau/Git_project/Files/Step_1_lot_1727.csv"
+    template = "/home/alex/Bureau/Git_project/1000691.036.AE ADAMS PVAI.xlsx"
+    PN = str(1000636)
+    generate(template, file_path1, PN)

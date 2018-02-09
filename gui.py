@@ -39,6 +39,7 @@ class OptionsWindow():
             self.resultTextBdt2Var = StringVar()
             self.dirExp = StringVar()
             self.resultTextBdt3Var = StringVar()
+            self.first_PN = IntVar()
             
             #Champ PVAI (servant de template)
             master = Frame(root, padding=5)
@@ -72,7 +73,14 @@ class OptionsWindow():
             Button(master, text="...", command=lambda: self.selectXlsx(2)).grid(row=1, column=1)
             Label(master, textvariable=self.resultTextBdt3Var, style="Error.TLabel").grid(row=2, column=0, columnspan=2)
 
-            Button(master, text="Valider", command=lambda: self.validate(self.dirPv.get(), self.dirBdt1Var.get(), self.dirBdt2Var.get(), self.dirExp.get())).grid(row=3, column=0, columnspan=2)
+            #Champ du premier PN de génération de fichier
+            master = Frame(root, padding=5)
+            master.pack()
+            Label(master, text="Premier PN de génération de fichier", style="BW.TLabel").grid(row=0, column=0)
+            first_PN = Entry(master)
+            first_PN.grid(row=0, column=1) #Interger and format validation tbd
+            
+            Button(master, text="Valider", command=lambda: self.validate(self.dirPv.get(), self.dirBdt1Var.get(), self.dirBdt2Var.get(), self.dirExp.get(), first_PN.get())).grid(row=3, column=0, columnspan=2)
 
             if self.dirBancDeTest:
                 self.dirBdt1Var.set(self.dirBancDeTest)
@@ -106,7 +114,7 @@ class OptionsWindow():
                 self.dirExp.set(dirname)
 
 
-    def validate(self, file0, file1, file2, file3):
+    def validate(self, file0, file1, file2, file3, PN):
         args = (file0, file1, file2, file3)
         textBdtVar = (self.resultTextBdt0Var, self.resultTextBdt1Var, self.resultTextBdt2Var, self.resultTextBdt3Var)
         i = 0; validation_counter = 0
@@ -121,9 +129,9 @@ class OptionsWindow():
                 textBdtVar[i].set('Please select a valid file')
             i += 1
 
-        if validation_counter == len(args):
+        if validation_counter == len(args)-2:
         	self.root.destroy()
-        	file_generator.generate(file1)
+        	file_generator.generate(file0, file1, PN)
            
 if __name__ == "__main__":
     OptionsWindow().show()
