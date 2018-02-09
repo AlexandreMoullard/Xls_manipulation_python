@@ -3,7 +3,7 @@ from tkinter.ttk import *
 from PIL import Image, ImageTk
 from tkinter import filedialog
 import os
-import file_generator
+
 
 class OptionsWindow():
     def __init__(self, dirBancDeTest=None):
@@ -134,7 +134,7 @@ class OptionsWindow():
         
         if validation_counter == len(args)+ 1 : # all files ok is lengh of args + first PN check (so +1) 
         	self.root.destroy()
-        	tasks.task_manager()
+        	tasks.task_manager(file0, file1, file2, file3, PN)
            
 if __name__ == "__main__":
     OptionsWindow().show()
