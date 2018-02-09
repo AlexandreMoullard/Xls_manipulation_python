@@ -40,6 +40,7 @@ class OptionsWindow():
             self.dirExp = StringVar()
             self.resultTextBdt3Var = StringVar()
             self.first_PN = IntVar()
+            self.text_variable_PN = StringVar()
             
             #Champ PVAI (servant de template)
             master = Frame(root, padding=5)
@@ -50,37 +51,30 @@ class OptionsWindow():
             Label(master, textvariable=self.resultTextBdt0Var, style="Error.TLabel").grid(row=2, column=0, columnspan=2)
             
             #Champ banc de test étape 1
-            master = Frame(root, padding=5)
-            master.pack()
-            Label(master, text="Banc de test etape 1 (.csv)", style="BW.TLabel").grid(row=0, column=0)
-            Label(master, textvariable=self.dirBdt1Var, style="Directory.TLabel").grid(row=1, column=0)
-            Button(master, text="...", command=lambda: self.selectCSV(1)).grid(row=1, column=1)
-            Label(master, textvariable=self.resultTextBdt1Var, style="Error.TLabel").grid(row=2, column=0, columnspan=2)
+            Label(master, text="Banc de test etape 1 (.csv)", style="BW.TLabel").grid(row=3, column=0)
+            Label(master, textvariable=self.dirBdt1Var, style="Directory.TLabel").grid(row=4, column=0)
+            Button(master, text="...", command=lambda: self.selectCSV(1)).grid(row=4, column=1)
+            Label(master, textvariable=self.resultTextBdt1Var, style="Error.TLabel").grid(row=5, column=0, columnspan=2)
 
             #Champ banc de test étape 2
-            master = Frame(root, padding=5)
-            master.pack()
-            Label(master, text="Banc de test etape 2 (.csv)", style="BW.TLabel").grid(row=0, column=0)
-            Label(master, textvariable=self.dirBdt2Var, style="Directory.TLabel").grid(row=1, column=0)
-            Button(master, text="...", command= lambda: self.selectCSV(2)).grid(row=1, column=1)
-            Label(master, textvariable=self.resultTextBdt2Var, style="Error.TLabel").grid(row=2, column=0, columnspan=2)
+            Label(master, text="Banc de test etape 2 (.csv)", style="BW.TLabel").grid(row=6, column=0)
+            Label(master, textvariable=self.dirBdt2Var, style="Directory.TLabel").grid(row=7, column=0)
+            Button(master, text="...", command= lambda: self.selectCSV(2)).grid(row=7, column=1)
+            Label(master, textvariable=self.resultTextBdt2Var, style="Error.TLabel").grid(row=8, column=0, columnspan=2)
 
             #Champ export acceptation
-            master = Frame(root, padding=5)
-            master.pack()
-            Label(master, text="Export banc acceptation (.xlsx)", style="BW.TLabel").grid(row=0, column=0)
-            Label(master, textvariable=self.dirExp, style="Directory.TLabel").grid(row=1, column=0)
-            Button(master, text="...", command=lambda: self.selectXlsx(2)).grid(row=1, column=1)
-            Label(master, textvariable=self.resultTextBdt3Var, style="Error.TLabel").grid(row=2, column=0, columnspan=2)
+            Label(master, text="Export banc acceptation (.xlsx)", style="BW.TLabel").grid(row=9, column=0)
+            Label(master, textvariable=self.dirExp, style="Directory.TLabel").grid(row=10, column=0)
+            Button(master, text="...", command=lambda: self.selectXlsx(2)).grid(row=10, column=1)
+            Label(master, textvariable=self.resultTextBdt3Var, style="Error.TLabel").grid(row=11, column=0, columnspan=2)
 
             #Champ du premier PN de génération de fichier
-            master = Frame(root, padding=5)
-            master.pack()
-            Label(master, text="Premier PN de génération de fichier", style="BW.TLabel").grid(row=0, column=0)
-            first_PN = Entry(master)
-            first_PN.grid(row=0, column=1) #Interger and format validation tbd
-            
-            Button(master, text="Valider", command=lambda: self.validate(self.dirPv.get(), self.dirBdt1Var.get(), self.dirBdt2Var.get(), self.dirExp.get(), first_PN.get())).grid(row=3, column=0, columnspan=2)
+            Label(master, text="Premier PN de génération de fichier", style="BW.TLabel").grid(row=12, column=0)
+            first_PN = Entry(master, style="Directory.TLabel")
+            first_PN.grid(row=12, column=1)
+            Label(master, textvariable=self.text_variable_PN, style="Error.TLabel").grid(row=13, column=0, columnspan=2)
+
+            Button(master, text="Valider", command=lambda: self.validate(self.dirPv.get(), self.dirBdt1Var.get(), self.dirBdt2Var.get(), self.dirExp.get(), first_PN.get())).grid(row=14, column=0, columnspan=2)
 
             if self.dirBancDeTest:
                 self.dirBdt1Var.set(self.dirBancDeTest)
@@ -115,7 +109,7 @@ class OptionsWindow():
 
 
     def validate(self, file0, file1, file2, file3, PN):
-        args = (file0, file1, file2, file3)
+        args = (file0, file1)# , file2, file3) to be added
         textBdtVar = (self.resultTextBdt0Var, self.resultTextBdt1Var, self.resultTextBdt2Var, self.resultTextBdt3Var)
         i = 0; validation_counter = 0
 
@@ -128,8 +122,17 @@ class OptionsWindow():
                 self.file = None
                 textBdtVar[i].set('Please select a valid file')
             i += 1
-
-        if validation_counter == len(args)-2:
+        
+        patern = r"(\d{7})(\.)(\d{3})"
+        other_patern = r"\d{7}"
+        wrong_patern = r"(\d{7})(\.)"
+        if re.match(patern, PN) or (re.match(other_patern, PN) and not re.match(wrong_patern, PN)):
+            validation_counter += 1
+            self.text_variable_PN.set('')
+        else:
+            self.text_variable_PN.set('Unrecognise part number, format must be XXXXXXX or XXXXXXX.XXX')
+        
+        if validation_counter == len(args)+ 1 : # all files ok is lengh of args + first PN check (so +1) 
         	self.root.destroy()
         	file_generator.generate(file0, file1, PN)
            
