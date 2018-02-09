@@ -8,6 +8,7 @@ def generate(template_file_path, testbench1_file_path, first_PN):
     rf = pd.read_csv(testbench1_file_path)
     product_list = list(rf['SN'])
     number_of_products = len(product_list)
+    generated_files_list = []
     wb = {}
     loop_count_i = 0
     patern = r"(\d{7})(\.)(\d{3})"
@@ -44,15 +45,18 @@ def generate(template_file_path, testbench1_file_path, first_PN):
 
         wb[product] = load_workbook(filename= template_file_path)
         dest_filename = str(PN) + PNext + '.AA' + '_'+ product +'_PVAI.xlsx'
+        generated_files_list.append(dest_filename)
         ws1 = wb[product].active
         ws1.title = product
         ws1['D13'] = product
         ws1['D11'] = number_of_products
         wb[product].save(filename = dest_filename)
         loop_count_i += 1
+    return generated_files_list
 
 if __name__ == "__main__":
     file_path1 = "/home/alex/Bureau/Git_project/Files/Step_1_lot_1727.csv"
     template = "/home/alex/Bureau/Git_project/1000691.036.AE ADAMS PVAI.xlsx"
     PN = str(1000636)
-    generate(template, file_path1, PN)
+    show_return = generate(template, file_path1, PN)
+    print(show_return)
