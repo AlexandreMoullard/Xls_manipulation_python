@@ -134,7 +134,7 @@ class OptionsWindow():
         
         if validation_counter == len(args)+ 1 : # all files ok is lengh of args + first PN check (so +1) 
         	self.root.destroy()
-        	file_generator.generate(file0, file1, PN)
+        	tasks.task_manager()
            
 if __name__ == "__main__":
     OptionsWindow().show()
