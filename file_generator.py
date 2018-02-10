@@ -1,5 +1,5 @@
 from openpyxl import Workbook
-from openpyxl.compat import range
+#from openpyxl.compat import range
 from openpyxl import load_workbook
 import pandas as pd
 import re
@@ -45,12 +45,15 @@ def generate(template_file_path, testbench1_file_path, first_PN):
 
         wb[product] = load_workbook(filename= template_file_path)
         dest_filename = str(PN) + PNext + '.AA' + '_'+ product +'_PVAI.xlsx'
-        generated_files_list.append(dest_filename)
+        generated_files_list.append((product, dest_filename))
+        """
         ws1 = wb[product].active
         ws1.title = product
         ws1['D13'] = product
         ws1['D11'] = number_of_products
+        """
         wb[product].save(filename = dest_filename)
+        
         loop_count_i += 1
     return generated_files_list
 

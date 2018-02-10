@@ -3,7 +3,7 @@ from tkinter.ttk import *
 from PIL import Image, ImageTk
 from tkinter import filedialog
 import os
-
+import tasks
 
 class OptionsWindow():
     def __init__(self, dirBancDeTest=None):
@@ -86,7 +86,7 @@ class OptionsWindow():
 
 
     def selectCSV(self, step):
-        dirname = filedialog.askopenfilename(parent=self.root,initialdir="/",title='Please select a csv file',filetypes=[('csv files','.csv'),('all files','.*')])
+        dirname = filedialog.askopenfilename(parent=self.root,initialdir="os.getcwd()",title='Please select a csv file',filetypes=[('csv files','.csv'),('all files','.*')])
         if isinstance(dirname, str):
             if os.name == 'nt':
                 dirname = dirname.replace('/', '\\') #Windows compatibility
@@ -97,7 +97,7 @@ class OptionsWindow():
         	    self.dirBdt2Var.set(dirname)
 
     def selectXlsx(self, step):
-        dirname = filedialog.askopenfilename(parent=self.root,initialdir="/",title='Please select a xlsx file',filetypes=[('xlsx files','.xlsx'),('all files','.*')])
+        dirname = filedialog.askopenfilename(parent=self.root,initialdir="os.getcwd()",title='Please select a xlsx file',filetypes=[('xlsx files','.xlsx'),('all files','.*')])
         if isinstance(dirname, str):
             if os.name == 'nt':
                 dirname = dirname.replace('/', '\\') #Windows compatibility
