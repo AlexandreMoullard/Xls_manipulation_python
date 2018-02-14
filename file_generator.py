@@ -1,5 +1,4 @@
 from openpyxl import Workbook
-#from openpyxl.compat import range
 from openpyxl import load_workbook
 import pandas as pd
 import re
@@ -57,9 +56,42 @@ def generate(template_file_path, testbench1_file_path, first_PN):
         loop_count_i += 1
     return generated_files_list
 
+def csv_row_search(searched_value, column, file):
+    rf = pd.read_csv(file)
+    column_list = list(rf[column])
+    line = 0
+    
+    for value in column_list:
+        if value == searched_value:
+            return line
+        else:
+            line += 1
+
+    return False
+def double_value_check(column, file):
+    rf = pd.read_csv(file)
+    column_list = list(rf[column])
+    seen = set()
+    uniq=[]
+ 
+    for value in column_list:
+        if value not in seen:
+            uniq.append(value)
+            seen.add(value)
+        else:
+            return value 
+    return False        
+
 if __name__ == "__main__":
+    """
     file_path1 = "/home/alex/Bureau/Git_project/Files/Step_1_lot_1727.csv"
     template = "/home/alex/Bureau/Git_project/1000691.036.AE ADAMS PVAI.xlsx"
     PN = str(1000636)
     show_return = generate(template, file_path1, PN)
+    print(show_return)
+    """
+    File = "/home/alex/Bureau/Git_project/Files/Step_1_lot_1727.csv"
+    value = 'E00216'
+    col = 'SN'
+    show_return =not_double_value_check(value, col, File)
     print(show_return)
