@@ -7,20 +7,20 @@ import tasks
 
 class OptionsWindow():
     def __init__(self, dirBancDeTest=None):
-        self.running = False
-        self.root    = None
+        self.running       = False
+        self.root          = None
         self.dirBancDeTest = dirBancDeTest
 
     def show(self):
         if self.running:
             self.root.focus_force()
         else:
-            root = Tk()
+            root      = Tk()
             self.root = root
 
             root.title("Selection de fichier de production")
             root.resizable(width=False, height=False)
-            img = PhotoImage(file='srett.png')
+            img = ImageTk.PhotoImage(file='srett.png')
             root.tk.call('wm', 'iconphoto', root._w, img)
             if os.name == 'nt':
                 root.iconbitmap('srett.png') #not working on linux
@@ -31,18 +31,18 @@ class OptionsWindow():
             style.configure("Directory.TLabel", foreground="black", background="#BBBBBB", padding=5, anchor=W, width=40)
             style.configure("Error.TLabel", foreground="white", background="#3d4f6f")
             
-            self.dirPv = StringVar()
-            self.resultTextBdt0Var = StringVar()
-            self.dirBdt1Var  = StringVar()
-            self.resultTextBdt1Var = StringVar()
-            self.dirBdt2Var  = StringVar()
-            self.resultTextBdt2Var = StringVar()
-            self.dirExp = StringVar()
-            self.resultTextBdt3Var = StringVar()
-            self.first_PN = IntVar()
-            self.text_variable_PN = StringVar()
+            self.dirPv               = StringVar()
+            self.resultTextBdt0Var   = StringVar()
+            self.dirBdt1Var          = StringVar()
+            self.resultTextBdt1Var   = StringVar()
+            self.dirBdt2Var          = StringVar()
+            self.resultTextBdt2Var   = StringVar()
+            self.dirExp              = StringVar()
+            self.resultTextBdt3Var   = StringVar()
+            self.first_PN            = IntVar()
+            self.text_variable_PN    = StringVar()
             
-            #Champ PVAI (servant de template)
+            #Champ PVAI (sert de template)
             master = Frame(root, padding=5)
             master.pack()
             Label(master, text="PV à remplir (.xlsx)", style="BW.TLabel").grid(row=0, column=0)
@@ -63,9 +63,9 @@ class OptionsWindow():
             Label(master, textvariable=self.resultTextBdt2Var, style="Error.TLabel").grid(row=8, column=0, columnspan=2)
 
             #Champ export acceptation
-            Label(master, text="Export banc acceptation (.xlsx)", style="BW.TLabel").grid(row=9, column=0)
+            Label(master, text="Export banc acceptation (.csv)", style="BW.TLabel").grid(row=9, column=0)
             Label(master, textvariable=self.dirExp, style="Directory.TLabel").grid(row=10, column=0)
-            Button(master, text="...", command=lambda: self.selectXlsx(2)).grid(row=10, column=1)
+            Button(master, text="...", command=lambda: self.selectCSV(3)).grid(row=10, column=1)
             Label(master, textvariable=self.resultTextBdt3Var, style="Error.TLabel").grid(row=11, column=0, columnspan=2)
 
             #Champ du premier PN de génération de fichier
@@ -94,7 +94,9 @@ class OptionsWindow():
             if step == 1:
                 self.dirBdt1Var.set(dirname)
             elif step == 2:
-        	    self.dirBdt2Var.set(dirname)
+                self.dirBdt2Var.set(dirname)
+            elif step == 3:
+                self.dirExp.set(dirname)
 
     def selectXlsx(self, step):
         dirname = filedialog.askopenfilename(parent=self.root,initialdir="os.getcwd()",title='Please select a xlsx file',filetypes=[('xlsx files','.xlsx'),('all files','.*')])
@@ -109,7 +111,7 @@ class OptionsWindow():
 
 
     def validate(self, file0, file1, file2, file3, PN):
-        args = (file0, file1)# , file2, file3) to be added
+        args = (file0, file1, file2, file3) 
         textBdtVar = (self.resultTextBdt0Var, self.resultTextBdt1Var, self.resultTextBdt2Var, self.resultTextBdt3Var)
         i = 0; validation_counter = 0
 
@@ -130,7 +132,7 @@ class OptionsWindow():
             validation_counter += 1
             self.text_variable_PN.set('')
         else:
-            self.text_variable_PN.set('Unrecognise part number, format must be XXXXXXX or XXXXXXX.XXX')
+            self.text_variable_PN.set('Unrecognised part number, format must be XXXXXXX or XXXXXXX.XXX')
         
         if validation_counter == len(args)+ 1 : # all files ok is lengh of args + first PN check (so +1) 
         	self.root.destroy()
