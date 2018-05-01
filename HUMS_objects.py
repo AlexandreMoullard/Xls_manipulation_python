@@ -213,11 +213,13 @@ class Adams(Hums):
 
     def writing_tester(self, worksheet, cell_value, attribut, unit='', rounding=0):
         try :
-            if rounding:
-                worksheet[cell_value] = str(round(self.hums_attributs[attribut], rounding)) + unit
+            if self.hums_attributs[attribut]:
+                if rounding:
+                    worksheet[cell_value] = str(round(self.hums_attributs[attribut], rounding)) + unit
+                else:
+                    worksheet[cell_value] = str(self.hums_attributs[attribut]) + unit
             else:
-                worksheet[cell_value] = str(self.hums_attributs[attribut]) + unit
+                log.error('No value found for: {} on product : {}'.format(attribut, self.SN))
         except Exception:
-            err = 'Error during calculation of: {} on product : {}'.format(attribut, self.SN)
-            log.error(err)
+            log.error('Error during calculation of: {} on product : {}'.format(attribut, self.SN))
             raise
