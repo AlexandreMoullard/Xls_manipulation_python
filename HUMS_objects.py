@@ -2,11 +2,14 @@ import pyexcel      as pe
 import pandas       as pd
 import table_utils  as tu
 import functools    as ft
+#import logging
 import style_patch
 import pdb
 
 from openpyxl import load_workbook 
 from operator import itemgetter
+
+log = tu.logging_manager()
 
 class Datafiles:
     def __init__(self, file0, file1, file2, file3):
@@ -131,61 +134,90 @@ class Adams(Hums):
         wb         = {}
         wb[self.SN]= load_workbook(filename= self.pv)
         ws         = wb[self.SN].active
+        tu.img_import(wb, self.SN)
 
-        ws['F107'] = str(self.hums_attributs['conso_sleep']) + ' µA'
-        ws['F108'] = str(self.hums_attributs['conso_acq']) + ' µA'
-        ws['F109'] = str(self.hums_attributs['conso_stock']) + ' µA'
-        ws['F111'] = str(self.hums_attributs['Compression joints piles']) + ' mm'
-        ws['F137'] = str(self.hums_attributs['Poids']) + 'g'
-        ws['F139'] = str(self.hums_attributs['Resultat du test gabarit'])
-        ws['F140'] = str(self.hums_attributs['Resultat de la valeur de mesure du HUMS libre au milliohmetre']) + ' mΩ'
-        ws['F141'] = str(self.hums_attributs['Resultat de la valeur de mesure du HUMS monte au milliohmetre']) + ' mΩ'
+        #Conso and other tests
+        self.writing_tester(ws, 'F107', 'conso_sleep', ' µA')
+        self.writing_tester(ws, 'F108', 'conso_acq', ' µA')
+        self.writing_tester(ws, 'F109', 'conso_stock', ' µA')
+        self.writing_tester(ws, 'F111', 'Compression joints piles', ' mm')
+        self.writing_tester(ws, 'F137', 'Poids', 'g')
+        self.writing_tester(ws, 'F139', 'Resultat du test gabarit')
+        self.writing_tester(ws, 'F140', 'Resultat de la valeur de mesure du HUMS libre au milliohmetre', ' mΩ')
+        self.writing_tester(ws, 'F141', 'Resultat de la valeur de mesure du HUMS monte au milliohmetre', ' mΩ')        
 
         #Temperature
-        ws['F154'] = str(round(self.hums_attributs['Temperature Hums 2'], 1)) + '°C'
-        ws['F155'] = str(round(self.hums_attributs['Temperature Hums 3'], 1)) + '°C'
-        ws['F156'] = str(round(self.hums_attributs['Temperature Hums 1'], 1)) + '°C'
+        self.writing_tester(ws, 'F154', 'Temperature Hums 2', '°C', 1)
+        self.writing_tester(ws, 'F155', 'Temperature Hums 3', '°C', 1)
+        self.writing_tester(ws, 'F156', 'Temperature Hums 1', '°C', 1)
 
-        ws['D154'] = str(round(self.hums_attributs['Temperature Ref 2'], 1)) + '°C'
-        ws['D155'] = str(round(self.hums_attributs['Temperature Ref 3'], 1)) + '°C'
-        ws['D156'] = str(round(self.hums_attributs['Temperature Ref 1'], 1)) + '°C'
+        self.writing_tester(ws, 'D154', 'Temperature Ref 2', '°C', 1)
+        self.writing_tester(ws, 'D155', 'Temperature Ref 3', '°C', 1)
+        self.writing_tester(ws, 'D156', 'Temperature Ref 1', '°C', 1)
 
         #Humidity
-        ws['F158'] = str(round(self.hums_attributs['Humidite Hums 2'], 1)) + '%'
-        ws['F159'] = str(round(self.hums_attributs['Humidite Hums 1'], 1)) + '%'
-        ws['F160'] = str(round(self.hums_attributs['Humidite Hums 3'], 1)) + '%'
+        self.writing_tester(ws, 'F158', 'Humidite Hums 2', '%', 1)
+        self.writing_tester(ws, 'F159', 'Humidite Hums 3', '%', 1)
+        self.writing_tester(ws, 'F160', 'Humidite Hums 1', '%', 1)
 
-        ws['D158'] = str(round(self.hums_attributs['Humidite Ref 2'], 1)) + '%'
-        ws['D159'] = str(round(self.hums_attributs['Humidite Ref 1'], 1)) + '%'
-        ws['D160'] = str(round(self.hums_attributs['Humidite Ref 3'], 1)) + '%'
+        self.writing_tester(ws, 'D158', 'Humidite Ref 2', '%', 1)
+        self.writing_tester(ws, 'D159', 'Humidite Ref 3', '%', 1)
+        self.writing_tester(ws, 'D160', 'Humidite Ref 1', '%', 1)
 
         #Vibrations
-        ws['F166'] = str(round(self.hums_attributs['Resultat de la mesure de vibration sur X'], 2)) + ' grms'
-        ws['F167'] = str(round(self.hums_attributs['Resultat de la mesure de vibration sur Y'], 2)) + ' grms'
-        ws['F168'] = str(round(self.hums_attributs['Resultat de la mesure de vibration sur Z'], 2)) + ' grms'
+        self.writing_tester(ws, 'F166', 'Resultat de la mesure de vibration sur X', ' grms', 2)
+        self.writing_tester(ws, 'F167', 'Resultat de la mesure de vibration sur Y', ' grms', 2)
+        self.writing_tester(ws, 'F168', 'Resultat de la mesure de vibration sur Z', ' grms', 2)
 
-        ws['D166'] = str(round(self.hums_attributs['Resultat de la valeur de reference de vibration sur X'], 2)) + ' grms'
-        ws['D167'] = str(round(self.hums_attributs['Resultat de la valeur de reference de vibration sur Y'], 2)) + ' grms'
-        ws['D168'] = str(round(self.hums_attributs['Resultat de la valeur de reference de vibration sur Z'], 2)) + ' grms'
+        self.writing_tester(ws, 'D166', 'Resultat de la valeur de reference de vibration sur X', ' grms', 2)
+        self.writing_tester(ws, 'D167', 'Resultat de la valeur de reference de vibration sur Y', ' grms', 2)
+        self.writing_tester(ws, 'D168', 'Resultat de la valeur de reference de vibration sur Z', ' grms', 2)
 
         #Chocs
-        ws['F170'] = str(round(self.hums_attributs['Ecart max de l\'analyse SRC X'], 2)) + '%'
-        ws['F171'] = str(round(max(self.hums_attributs['Shock (transverse X) axe Y'],self.hums_attributs['Shock (transverse X) axe Z']), 2)) + '%'
-        ws['F172'] = str(round(self.hums_attributs['Ecart max de l\'analyse SRC Y'], 2)) + '%'
-        ws['F173'] = str(round(self.hums_attributs['Ecart max de l\'analyse SRC Z'], 2)) + '%'
+        self.writing_tester(ws, 'F170', 'Ecart max de l\'analyse SRC X', '%', 2)
+        self.writing_tester(ws, 'F172', 'Ecart max de l\'analyse SRC Y', '%', 2)
+        self.writing_tester(ws, 'F173', 'Ecart max de l\'analyse SRC Z', '%', 2)
 
         ws['D170'] = '-'
         ws['D171'] = '-'
         ws['D172'] = '-'
         ws['D173'] = '-'
+        
+        try:
+            max_transverse = max(self.hums_attributs['Shock (transverse X) axe Y'],self.hums_attributs['Shock (transverse X) axe Z'])    
+            ws['F171'] = str(round(max_transverse, 2)) + '%'
+        except Exception:
+            max_transverse = 0
+            log.error('Max transverse calculation error on product: {}'.format(self.SN))
 
+        
         #Ecretage
-        ws['D218'] = str(round(min(self.hums_attributs['Ecretage -20 axe X'], self.hums_attributs['Ecretage -20 axe Y'], self.hums_attributs['Ecretage -20 axe Z']), 1)) + ' g'
-        ws['D219'] = str(round(min(self.hums_attributs['Ecretage 70 axe X'] , self.hums_attributs['Ecretage 70 axe Y'] , self.hums_attributs['Ecretage 70 axe Z'] ), 1)) + ' g'
-
-        dic_ecrt_low  = {key:self.hums_attributs[key] for key in ['Ecretage -20 axe X', 'Ecretage -20 axe Y', 'Ecretage -20 axe Z']}
-        dic_ecrt_high = {key:self.hums_attributs[key] for key in ['Ecretage 70 axe X' , 'Ecretage 70 axe Y' , 'Ecretage 70 axe Z'] }
-        ws['F218']    = str(max(dic_ecrt_low.items(), key=itemgetter(1))[0][12:])
-        ws['F219']    = str(max(dic_ecrt_high.items(), key=itemgetter(1))[0][12:])
+        try:
+            ecret_min_low = min(self.hums_attributs['Ecretage -20 axe X'], self.hums_attributs['Ecretage -20 axe Y'], self.hums_attributs['Ecretage -20 axe Z'])
+            ecret_min_hig = min(self.hums_attributs['Ecretage 70 axe X'] , self.hums_attributs['Ecretage 70 axe Y'] , self.hums_attributs['Ecretage 70 axe Z'] )
+            ws['D218'] = str(round(ecret_min_low, 1)) + ' g'
+            ws['D219'] = str(round(ecret_min_hig, 1)) + ' g'
+        except Exception:
+            ecret_min_low = 0
+            ecret_min_hig = 0
+            log.error('Ecretage minimal calculation error on product: {}'.format(self.SN))
+        
+        #Retrieving axis of mininimum ecretage
+        if ecret_min_low and ecret_min_hig:
+            dic_ecrt_low  = {key:self.hums_attributs[key] for key in ['Ecretage -20 axe X', 'Ecretage -20 axe Y', 'Ecretage -20 axe Z']}
+            dic_ecrt_high = {key:self.hums_attributs[key] for key in ['Ecretage 70 axe X' , 'Ecretage 70 axe Y' , 'Ecretage 70 axe Z'] }
+            ws['F218']    = str(max(dic_ecrt_low.items(),  key=itemgetter(1))[0][13:])
+            ws['F219']    = str(max(dic_ecrt_high.items(), key=itemgetter(1))[0][12:])
 
         wb[self.SN].save(filename = self.pv)
+
+    def writing_tester(self, worksheet, cell_value, attribut, unit='', rounding=0):
+        try :
+            if rounding:
+                worksheet[cell_value] = str(round(self.hums_attributs[attribut], rounding)) + unit
+            else:
+                worksheet[cell_value] = str(self.hums_attributs[attribut]) + unit
+        except Exception:
+            err = 'Error during calculation of: {} on product : {}'.format(attribut, self.SN)
+            log.error(err)
+            raise

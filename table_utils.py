@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+import logging
 import pdb
 
 from collections import Counter
@@ -103,8 +104,14 @@ def generate_pn(first_pn, products):
     
     return result   
 
-
-
+def logging_manager():
+    log = logging.getLogger()
+    hdlr = logging.FileHandler('logs.txt', mode='a')
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    hdlr.setFormatter(formatter)
+    log.addHandler(hdlr) 
+    log.setLevel(logging.WARNING)
+    return log
 
 if __name__ == "__main__":
     File = ""
