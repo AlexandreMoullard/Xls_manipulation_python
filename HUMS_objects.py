@@ -2,7 +2,6 @@ import pyexcel      as pe
 import pandas       as pd
 import table_utils  as tu
 import functools    as ft
-#import logging
 import style_patch
 import pdb
 
@@ -25,7 +24,14 @@ class Datafiles:
         tb1_list_double  = tu.tb1_check(self.file1)
         tb2_dict_error   = tu.tb2_check(self.file1, self.file2)
         acc_list_missing = tu.acceptance_check(self.file1, self.file3)
-        #logging tbd here
+        #logging file problems
+        if tb1_list_double:
+            log.error('Products {} appears twice or more in {}, this file should contain only uniq product result'.format(tb1_list_double, self.file1))
+        if tb2_dict_error:
+            log.error('The folowing problems: {} appears in {}, this file should contain each product twice'.format(tb2_dict_error, self.file2))
+        if acc_list_missing:
+            log.error('The folowing products are missing: {} in {}, this file should contain the same products than the 1rs testbench step'.format(acc_list_missing, self.file3))
+
         return [tb1_list_double, tb2_dict_error, acc_list_missing]
 
 class Batch:
@@ -49,7 +55,7 @@ class Batch:
     		self.product_type = str(p[0])
     	else:
     		self.product_type = 'inconsistante batch'
-    		#logging here		
+    		log.error('The batch should contain only one type of products (EDEN or ADAMS), actual batch: {}'.format(self.products))		
 
 class Hums:
     def __init__(self, SN, files):

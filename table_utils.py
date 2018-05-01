@@ -41,7 +41,7 @@ def tb2_check(filetb1, filetb2):
             cnt[key] = 'seen once'
         if cnt[key] == 2:
             del cnt[key]
-    return cnt
+    return dict(cnt)
 
 def acceptance_check(filetb1, fileacc):
     #all roducts from tb1 need to be presente once
