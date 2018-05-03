@@ -79,4 +79,24 @@ class Mixin:
 	            ws['F218']    = str(max(dic_ecrt_low.items(),  key=itemgetter(1))[0][13:])
 	            ws['F219']    = str(max(dic_ecrt_high.items(), key=itemgetter(1))[0][12:])
 
+	def adams_tests(ws):
+		#defining test results of adams
+		#5 types of tets: M = max, S = status, T = thresholds, R = tolerence ref, P = % ref
+		testing = {}
+		testing['T_conso_veile'] = [225, 275]
+		testing['T_conso_perio'] = [4000, 4500]
+		testing['T_conso_stock'] = [10, 30]
+		testing['T_compr_joint'] = [3.15, 4.15]
+		testing['M_poids']       = 1250
+		testing['S_gabarit_dim'] = 'OK'
+		testing['M_conti_libre'] = 1
+		testing['M_conti_monte'] = 1.5
+		testing['S_led'] 		 = 'OK'
+		testing['R_temperature'] = 1
+		testing['R_humidity'] 	 = 5
+		testing['P_vibration']   = 10
+		testing['P_src'] 		 = 10
+		
+
+
 
