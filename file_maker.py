@@ -7,13 +7,6 @@ import pdb #pdb.set_trace()
 from pathlib  import Path
 from openpyxl import load_workbook 
 
-template_file  = "tested_files\\1000691.036.AE ADAMS PVAI.xlsx"
-tb1_file       = "donne_dirac\\Step_1_lot_16 31.csv"
-tb2_file       = "tested_files\\Step_2_lot_1727.csv"
-accept_file    = "donne_dirac\\HUMS_ADAMS_LOT_17 06_20180427_153620.csv"
-first_pn       = '1000691_test'
-first_real_pn  = str(1000691)
-
 def file_gen(template_file, tb1_file, tb2_file, accept_file, first_pn=1000636, first_real_pn=1000636):
     # Objects init
     data_files    = ho.Datafiles(template_file, tb1_file, tb2_file, accept_file)
@@ -53,10 +46,10 @@ def file_gen(template_file, tb1_file, tb2_file, accept_file, first_pn=1000636, f
 
 
 if __name__=='__main__':
-    template_file  = "tested_files\\1000691.036.AE ADAMS PVAI.xlsx"
-    tb1_file       = "donne_dirac\\Step_1_lot_16 31.csv"
-    tb2_file       = "tested_files\\Step_2_lot_1727.csv"
-    accept_file    = "donne_dirac\\HUMS_ADAMS_LOT_17 06_20180427_153620.csv"
+    template_file  = "tested_files/1000691.036.AE ADAMS PVAI.xlsx"
+    tb1_file       = "donne_dirac/Step_1_lot_16 31.csv"
+    tb2_file       = "tested_files/Step_2_lot_1727.csv"
+    accept_file    = "donne_dirac/HUMS_ADAMS_LOT_17 06_20180427_153620.csv"
     first_pn       = '1000691_test'
     first_real_pn  = str(1000691)
     file_gen(template_file, tb1_file, tb2_file, accept_file, first_pn, first_real_pn)

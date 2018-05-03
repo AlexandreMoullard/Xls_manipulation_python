@@ -1,4 +1,5 @@
 import table_utils  as tu
+from operator import itemgetter
 
 log = tu.logging_manager()
 

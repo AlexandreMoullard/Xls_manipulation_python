@@ -53,8 +53,8 @@ def acceptance_check(filetb1, fileacc):
 
 def img_import(workbook, product_name):
     #correction image problem (needs to be imported seperately)
-    img = drawing.image.Image('images\\srett_xls_image.png')
-    img1= drawing.image.Image('images\\srett_xls_image.png') #doesn't work with 1 variable
+    img = drawing.image.Image('images/srett_xls_image.png')
+    img1= drawing.image.Image('images/srett_xls_image.png') #doesn't work with 1 variable
     workbook[product_name].active.add_image(img, 'A1')
     workbook[product_name].active.add_image(img1, 'A31')
 

@@ -7,10 +7,10 @@ import pdb #pdb.set_trace()
 from pathlib  import Path
 from openpyxl import load_workbook 
 
-template_file  = "tested_files\\1000691.036.AE ADAMS PVAI.xlsx"
-tb1_file       = "tested_files\\Step_1_lot_1727.csv"
-tb2_file       = "tested_files\\Step_2_lot_1727.csv"
-accept_file    = "tested_files\\HUMS_EDEN_LOT_01 25_20180201_145918.csv"
+template_file  = "tested_files/1000691.036.AE ADAMS PVAI.xlsx"
+tb1_file       = "tested_files/Step_1_lot_1727.csv"
+tb2_file       = "tested_files/Step_2_lot_1727.csv"
+accept_file    = "tested_files/HUMS_EDEN_LOT_01 25_20180201_145918.csv"
 first_pn       = '1000636_test'
 first_real_pn  = str(1000636)
 
