@@ -79,8 +79,8 @@ class Mixin:
             if ecret_min_low and ecret_min_hig:
                 dic_ecrt_low  = {key:self.hums_attributs[key] for key in ['Ecretage -20 axe X', 'Ecretage -20 axe Y', 'Ecretage -20 axe Z']}
                 dic_ecrt_high = {key:self.hums_attributs[key] for key in ['Ecretage 70 axe X' , 'Ecretage 70 axe Y' , 'Ecretage 70 axe Z'] }
-                ws['F218']    = str(max(dic_ecrt_low.items(),  key=itemgetter(1))[0][13:])
-                ws['F219']    = str(max(dic_ecrt_high.items(), key=itemgetter(1))[0][12:])
+                ws['F218']    = str(min(dic_ecrt_low.items(),  key=itemgetter(1))[0][13:])
+                ws['F219']    = str(min(dic_ecrt_high.items(), key=itemgetter(1))[0][12:])
 
     def adams_tests(self, ws):
         self.threshold_check(ws, 'T_conso_veil' , 'conso_sleep', 'G107')
