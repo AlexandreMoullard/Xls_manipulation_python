@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 class Mixin:
 
     def fill_adams(self, ws):
-        #Conso and other tests
+            #Conso and other tests
             self.writing_tester(ws, 'F107', 'conso_sleep', ' µA')
             self.writing_tester(ws, 'F108', 'conso_acq', ' µA')
             self.writing_tester(ws, 'F109', 'conso_stock', ' µA')
@@ -17,7 +17,13 @@ class Mixin:
             self.writing_tester(ws, 'F137', 'Poids', 'g')
             self.writing_tester(ws, 'F139', 'Resultat du test gabarit')
             self.writing_tester(ws, 'F140', 'Resultat de la valeur de mesure du HUMS libre au milliohmetre', ' mΩ')
-            self.writing_tester(ws, 'F141', 'Resultat de la valeur de mesure du HUMS monte au milliohmetre', ' mΩ')        
+            self.writing_tester(ws, 'F141', 'Resultat de la valeur de mesure du HUMS monte au milliohmetre', ' mΩ')
+
+            #Led button
+            if self.hums_attributs['Resultat test bouton vert'] == 'OK' and self.hums_attributs['Resultat test bouton rouge'] == 'OK':
+                self.writing_tester(ws, 'F152', 'Resultat test bouton vert')
+            else:
+                ws['F152'] = 'NOK'        
 
             #Temperature
             self.writing_tester(ws, 'F154', 'Temperature Hums 2', '°C', 1)

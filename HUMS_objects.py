@@ -157,7 +157,7 @@ class Hums:
         try:
             out_cell = result_cell
             inp_cell = result_cell.replace('G', 'F')
-            if ws[inp_cell] == 'OK':
+            if ws[inp_cell].value == 'OK':
                 ws[out_cell] = 'OK'
             else:
                 ws[out_cell] = 'NOK'
