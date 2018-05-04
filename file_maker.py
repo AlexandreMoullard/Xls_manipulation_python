@@ -1,5 +1,7 @@
 import pytest       as pt
 import HUMS_objects as ho
+import Adams_object as ao
+import Eden_object  as eo
 import table_utils  as tu
 import style_patch
 import pdb #pdb.set_trace()
@@ -13,15 +15,15 @@ def file_gen(template_file, tb1_file, tb2_file, accept_file, first_pn=1000636, f
     batch         = ho.Batch()
     batch.get_products(data_files.files())
     batch.product_type_id()
-    #pdb.set_trace()
+
     #defining batch type & generate hums objects
     product_obj_list = []
     if batch.product_type == 'E':
         for p in batch.products:
-            product_obj_list.append(ho.Eden(p, data_files.files()))
+            product_obj_list.append(eo.Eden(p, data_files.files()))
     elif batch.product_type == 'A':
         for p in batch.products:
-            product_obj_list.append(ho.Adams(p, data_files.files()))
+            product_obj_list.append(ao.Adams(p, data_files.files()))
 
     # Running functions using files
     batch.generated_pn(first_real_pn)

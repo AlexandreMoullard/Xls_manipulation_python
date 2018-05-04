@@ -66,7 +66,7 @@ class Hums:
         self.test_bench_2_row    = tu.csv_row_search(self.SN, 'SN', files[2], ',')
         self.product_row         = tu.csv_row_search(self.SN, 'Numero de serie', files[3], ';')
         self.pv                  = ''
-
+        self.waited_test_result  = {}
 
     def get_attributs_from_acceptance(self, files):
         data_dict = pe.get_dict(file_name= files[3], delimiter=';')
@@ -146,18 +146,18 @@ class Hums:
                 ws[result_cell] = 'NOK'
                 return
 
-            if self.testing[threshold][0] <= value <= self.testing[threshold][1]:
+            if self.waited_test_result[threshold][0] <= value <= self.waited_test_result[threshold][1]:
                 ws[result_cell] = 'OK'
             else:
                 ws[result_cell] = 'NOK'
         except Exception:
             log.error('Testing value failled for {} on product {}'.format(threshold, self.SN))
 
-    def status_check(self, ws, result_cell):
+    def status_check(self, ws, status, result_cell):
         try:
             out_cell = result_cell
             inp_cell = result_cell.replace('G', 'F')
-            if ws[inp_cell].value == 'OK':
+            if ws[inp_cell].value == self.waited_test_result[status]:
                 ws[out_cell] = 'OK'
             else:
                 ws[out_cell] = 'NOK'
@@ -175,9 +175,9 @@ class Hums:
             out_cell = result_cell
             inp_cell = result_cell.replace('G', 'F')
             if percent:
-                tol = (self.testing[tolerence]/100)*self.hums_attributs[reference]
+                tol = (self.waited_test_result[tolerence]/100)*self.hums_attributs[reference]
             else:
-                tol = self.testing[tolerence]
+                tol = self.waited_test_result[tolerence]
 
             if self.hums_attributs[reference] - tol <= value <=  self.hums_attributs[reference] + tol:
                 ws[result_cell] = 'OK'
@@ -188,42 +188,6 @@ class Hums:
             log.error('Testing value failled for {} on product {}'.format(tolerence, self.SN))
 
 
-class Eden(Hums):
-    def __init__(self, SN, files):
-        Hums.__init__(self, SN, files)
-    def fill_pv(self, worksheet):
-        pass
 
 
-class Adams(Hums, _Adams.Mixin):
-    def __init__(self, SN, files):
-        Hums.__init__(self, SN, files)
-        #defining test results of adams
-        #4 types of tets:  S = status, T = thresholds, R = tolerence ref, P = % ref
-        self.testing = {}
-        self.testing['T_conso_veil']  = [225, 275]
-        self.testing['T_conso_perio'] = [4000, 4500]
-        self.testing['T_conso_stock'] = [10, 30]
-        self.testing['T_compr_joint'] = [3.15, 4.15]
-        self.testing['T_poids']       = [0, 1250]
-        self.testing['S_gabarit_dim'] = 'OK'
-        self.testing['T_conti_libre'] = [0, 1]
-        self.testing['T_conti_monte'] = [0, 1.5]
-        self.testing['S_led']         = 'OK'
-        self.testing['R_temperature'] = 1
-        self.testing['R_humidity']    = 5
-        self.testing['P_vibration']   = 10
-        self.testing['T_src']         = [0, 10]
-        self.testing['T_src_trans']   = [0, 15]
-
-    def fill_pv(self, ws):
-        wb         = {}
-        wb[self.SN]= load_workbook(filename= self.pv)
-        ws         = wb[self.SN].active
-        tu.img_import(wb, self.SN)
-
-        _Adams.Mixin.fill_adams(self, ws)
-        _Adams.Mixin.adams_tests(self, ws)
-
-        wb[self.SN].save(filename = self.pv)
 
