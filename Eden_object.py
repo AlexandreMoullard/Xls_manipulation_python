@@ -1,12 +1,14 @@
 import table_utils  as tu
+import HUMS_objects as ho
 import pdb #pdb.set_trace()
 import logging
 
 from operator import itemgetter
+from openpyxl import load_workbook
 
 log = logging.getLogger(__name__)
 
-class Eden(Hums):
+class Eden(ho.Hums):
     def __init__(self, SN, files):
         Hums.__init__(self, SN, files)        
         #defining test results of eden
@@ -33,8 +35,8 @@ class Eden(Hums):
         ws         = wb[self.SN].active
         tu.img_import(wb, self.SN)
 
-        self.fill_eden(self, ws)
-        self.test_eden(self, ws)
+        self.fill_eden(ws)
+        self.test_eden(ws)
 
         wb[self.SN].save(filename = self.pv)
 

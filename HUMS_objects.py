@@ -2,12 +2,10 @@ import pyexcel      as pe
 import pandas       as pd
 import table_utils  as tu
 import functools    as ft
-import _Adams
 import style_patch
 import pdb
 
 from openpyxl import load_workbook 
-#from operator import itemgetter
 
 log = tu.logging_manager()
 

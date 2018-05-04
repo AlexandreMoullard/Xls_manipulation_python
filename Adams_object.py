@@ -1,14 +1,16 @@
 import table_utils  as tu
+import HUMS_objects as ho
 import pdb #pdb.set_trace()
 import logging
 
 from operator import itemgetter
+from openpyxl import load_workbook
 
 log = logging.getLogger(__name__)
 
-class Adams(Hums):
+class Adams(ho.Hums):
     def __init__(self, SN, files):
-        Hums.__init__(self, SN, files)
+        ho.Hums.__init__(self, SN, files)
         
         #defining test results of adams
         #4 types of tets:  S = status, T = thresholds, R = tolerence ref, P = % ref
@@ -33,8 +35,8 @@ class Adams(Hums):
         ws         = wb[self.SN].active
         tu.img_import(wb, self.SN)
 
-        self.fill_adams(self, ws)
-        self.test_adams(self, ws)
+        self.fill_adams(ws)
+        self.test_adams(ws)
 
         wb[self.SN].save(filename = self.pv)
 
