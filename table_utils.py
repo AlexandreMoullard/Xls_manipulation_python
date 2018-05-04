@@ -69,6 +69,7 @@ def get_list_from_csv_row(file, row, strat_col, end_col):
     return ls
     
 def generate_pn(first_pn, products):
+    #code to be cleaned
     pn_patern = r"(\d{7})(\.)(\d{3})"
     pn_patern1 = r"\d{7}"
     tested_patern = r"\d{2}"

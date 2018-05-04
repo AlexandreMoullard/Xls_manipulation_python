@@ -137,6 +137,56 @@ class Hums:
             except Exception:
                 log.error('Error during calculation of: {} on product : {}'.format(attribut, self.SN))
                 raise
+    
+    def threshold_check(self, ws, threshold, tested_attribut, result_cell):
+        try:
+            if self.hums_attributs[tested_attribut]:
+                value = round(self.hums_attributs[tested_attribut], 2)
+            else:
+                ws[result_cell] = 'NOK'
+                return
+
+            if self.testing[threshold][0] <= value <= self.testing[threshold][1]:
+                ws[result_cell] = 'OK'
+            else:
+                ws[result_cell] = 'NOK'
+        except Exception:
+            log.error('Testing value failled for {} on product {}'.format(threshold, self.SN))
+
+    def status_check(self, ws, result_cell):
+        try:
+            out_cell = result_cell
+            inp_cell = result_cell.replace('G', 'F')
+            if ws[inp_cell] == 'OK':
+                ws[out_cell] = 'OK'
+            else:
+                ws[out_cell] = 'NOK'
+        except Exception:
+            log.error('Status value failled for cell {} on product {}'.format(result_cell, self.SN))
+
+    def tolerence_check(self, ws, tolerence, tested_attribut, reference, result_cell, percent=False):
+        try:
+            if self.hums_attributs[tested_attribut]:
+                value = round(self.hums_attributs[tested_attribut], 2)
+            else:
+                ws[result_cell] = 'NOK'
+                return
+
+            out_cell = result_cell
+            inp_cell = result_cell.replace('G', 'F')
+            if percent:
+                tol = (self.testing[tolerence]/100)*self.hums_attributs[reference]
+            else:
+                tol = self.testing[tolerence]
+
+            if self.hums_attributs[reference] - tol <= value <=  self.hums_attributs[reference] + tol:
+                ws[result_cell] = 'OK'
+            else :
+                ws[result_cell] = 'NOK'
+
+        except Exception:
+            log.error('Testing value failled for {} on product {}'.format(tolerence, self.SN))
+
 
 class Eden(Hums):
     def __init__(self, SN, files):
@@ -148,6 +198,23 @@ class Eden(Hums):
 class Adams(Hums, _Adams.Mixin):
     def __init__(self, SN, files):
         Hums.__init__(self, SN, files)
+        #defining test results of adams
+        #4 types of tets:  S = status, T = thresholds, R = tolerence ref, P = % ref
+        self.testing = {}
+        self.testing['T_conso_veil']  = [225, 275]
+        self.testing['T_conso_perio'] = [4000, 4500]
+        self.testing['T_conso_stock'] = [10, 30]
+        self.testing['T_compr_joint'] = [3.15, 4.15]
+        self.testing['T_poids']       = [0, 1250]
+        self.testing['S_gabarit_dim'] = 'OK'
+        self.testing['T_conti_libre'] = [0, 1]
+        self.testing['T_conti_monte'] = [0, 1.5]
+        self.testing['S_led']         = 'OK'
+        self.testing['R_temperature'] = 1
+        self.testing['R_humidity']    = 5
+        self.testing['P_vibration']   = 10
+        self.testing['T_src']         = [0, 10]
+        self.testing['T_src_trans']   = [0, 15]
 
     def fill_pv(self, ws):
         wb         = {}
@@ -156,6 +223,7 @@ class Adams(Hums, _Adams.Mixin):
         tu.img_import(wb, self.SN)
 
         _Adams.Mixin.fill_adams(self, ws)
+        _Adams.Mixin.adams_tests(self, ws)
 
         wb[self.SN].save(filename = self.pv)
 
