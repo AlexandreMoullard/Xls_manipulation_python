@@ -144,10 +144,13 @@ class Adams(ho.Hums):
         self.status_check(ws, 'S_gabarit_dim', 'G139')
         self.status_check(ws, 'S_led', 'G152')
 
-        max_transverse = max(self.hums_attributs['Shock (transverse X) axe Y'],self.hums_attributs['Shock (transverse X) axe Z'])
-        dic_transverse  = {key:self.hums_attributs[key] for key in ['Shock (transverse X) axe Y', 'Shock (transverse X) axe Z']}
-        name = str(max(dic_transverse.items(),  key=itemgetter(1))[0])
-        self.threshold_check(ws, 'T_src_trans', name, 'G171')
+        try:
+            max_transverse = max(self.hums_attributs['Shock (transverse X) axe Y'],self.hums_attributs['Shock (transverse X) axe Z'])
+            dic_transverse  = {key:self.hums_attributs[key] for key in ['Shock (transverse X) axe Y', 'Shock (transverse X) axe Z']}
+            name = str(max(dic_transverse.items(),  key=itemgetter(1))[0])
+            self.threshold_check(ws, 'T_src_trans', name, 'G171')
+        except Exception:
+            log.error('Transverse result failed on: {}'.format(self.SN))
         
 
 
