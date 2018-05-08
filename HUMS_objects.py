@@ -1,11 +1,12 @@
-import pyexcel      as pe
-import pandas       as pd
-import table_utils  as tu
-import functools    as ft
+import pyexcel        as pe
+import pandas         as pd
+import table_utils    as tu
+import file_functions as ff
 import style_patch
 import pdb
 
-from openpyxl import load_workbook 
+from openpyxl import load_workbook
+from numpy import mean
 
 log = tu.logging_manager()
 
@@ -20,9 +21,9 @@ class Datafiles:
         return [self.file0, self.file1, self.file2, self.file3]
 
     def file_control(self):
-        tb1_list_double  = tu.tb1_check(self.file1)
-        tb2_dict_error   = tu.tb2_check(self.file1, self.file2)
-        acc_list_missing = tu.acceptance_check(self.file1, self.file3)
+        tb1_list_double  = ff.tb1_check(self.file1)
+        tb2_dict_error   = ff.tb2_check(self.file1, self.file2)
+        acc_list_missing = ff.acceptance_check(self.file1, self.file3)
         #logging file problems
         if tb1_list_double:
             log.error('Products {} appears twice or more in {}, this file should contain only uniq product result'.format(tb1_list_double, self.file1))
@@ -44,7 +45,7 @@ class Batch:
         self.products = list(rf['SN'])
 
     def generated_pn(self, first_pn):
-        self.pn = tu.generate_pn(first_pn, self.products)
+        self.pn = ff.generate_pn(first_pn, self.products)
 
     def product_type_id(self):
     	batch = set()
@@ -70,38 +71,12 @@ class Hums:
         data_dict = pe.get_dict(file_name= files[3], delimiter=';')
         for key, value in data_dict.items():
             self.hums_attributs[key] = value[self.product_row]
-
-    def get_consumption(self, files):
-        #for sleep mode the EDEN consumption columns are: 50 to 57 + 82 to 89, taken with 1 column security margin does:
-        #for sleep mode the ADAMS consumption columns are identical but - 2 columns
-        css1 = 50; ces1 = 55; css2 = 83; ces2=89
-        csa  = 59; cea  = 79
-        csst = 99; cest = 109
-
-        if self.SN[0] == 'A':
-        	css1 = css1-2; ces1 = ces1-2 ; css2 = css2-2; ces2 = ces2-2
-        	csa  = csa -2; cea  = cea -2
-        	csst = csst-2; cest = cest-2
-
-        list_conso_sleep = tu.get_list_from_csv_row(files[1], self.test_bench_1_row, css1, ces1) + tu.get_list_from_csv_row(files[1], self.test_bench_1_row, css2, ces2)
-        list_conso_acq   = tu.get_list_from_csv_row(files[1], self.test_bench_1_row, csa, cea) 
-        list_conso_stock = tu.get_list_from_csv_row(files[1], self.test_bench_1_row, csst, cest)
-        
-        #mean calculation:
-        conso_sleep_raw  = ft.reduce(lambda x, y: x + y, list_conso_sleep)/len(list_conso_sleep)
-        conso_acq_raw    = ft.reduce(lambda x, y: x + y, list_conso_acq)  /len(list_conso_acq)
-        conso_stock_raw  = ft.reduce(lambda x, y: x + y, list_conso_stock)/len(list_conso_stock)
-        
-        #converting in µA: 
-        self.hums_attributs['conso_sleep'] = round(conso_sleep_raw*10**6, 1)
-        self.hums_attributs['conso_acq']   = round(conso_acq_raw*10**6  , 1)
-        self.hums_attributs['conso_stock'] = round(conso_stock_raw*10**6, 1)
-    
+   
     def generate_pv(self, template, PN, batch):
         wb          = {}
         wb[self.SN] = load_workbook(filename= template)
         ws          = wb[self.SN].active
-        tu.img_import(wb, self.SN)
+        ff.img_import(wb, self.SN)
         self.pv     =  PN  + '.AA_' + self.SN + '_PVAI.xlsx'
         self.batch_fill_pv(batch, ws)
         self.pv_header(PN, ws)
@@ -184,6 +159,47 @@ class Hums:
 
         except Exception:
             log.error('Testing value failled for {} on product {}'.format(tolerence, self.SN))
+
+    def get_consumption(self, file):
+        #value filtering tresholds
+        acq_low_fltr    = 0.002500
+        acq_high_fltr   = 0.006000
+        sleep_low_fltr  = 0
+        sleep_high_fltr = 0.000500
+
+        #acquisition mode and sleep mode
+        start_col   = tu.csv_col_search('Consumption 1' , file[1], ',')
+        end_col     = tu.csv_col_search('Consumption 40', file[1], ',')
+        total_conso = [round(x, 10) for x in tu.get_list_from_csv_row(file[1], self.test_bench_1_row, start_col, end_col)]
+        acqui_mode  = tu.filter_conso(total_conso, acq_low_fltr, acq_high_fltr, 'acqui')
+        sleep_mode  = tu.filter_conso(total_conso, sleep_low_fltr, sleep_high_fltr, 'sleep')
+        
+        #stock mode
+        stock_start_col = tu.csv_col_search('Consumption Ds1' , file[1], ',')
+        stock_end_col   = tu.csv_col_search('Consumption Ds11' , file[1], ',')
+        stock_mode      = [round(x, 10) for x in tu.get_list_from_csv_row(file[1], self.test_bench_1_row, stock_start_col, stock_end_col)]
+        
+        #Rounding values
+        conso_sleep = round(mean(sleep_mode)*10**6, 1)
+        conso_acq   = round(mean(acqui_mode)*10**6, 1)
+        conso_stock = round(mean(stock_mode)*10**6, 1)
+
+        #controling data & saving
+        if not sleep_mode or not acqui_mode:
+            log.error('Consumption error: sleep mode is {} and acquisition mode is {} on product {}'.format(conso_sleep, conso_acq, self.SN))
+            conso_sleep = 0
+            conso_acq   = 0
+        
+        if len(set(sleep_mode + acqui_mode) - set(total_conso)) > 3:
+            log.error('Consumption error: too many kicked values on product {}'.format(self.SN))
+            conso_sleep = 0
+            conso_acq   = 0
+                     
+        self.hums_attributs['conso_sleep'] = conso_sleep
+        self.hums_attributs['conso_acq']   = conso_acq
+        self.hums_attributs['conso_stock'] = conso_stock
+            
+    
 
 
 

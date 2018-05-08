@@ -1,10 +1,9 @@
-import re
-import pandas as pd
 import logging
 import pdb
+import pandas as pd
 
-from collections import Counter
-from openpyxl    import drawing
+from itertools   import filterfalse
+from numpy import mean
 
 def csv_row_search(searched_value, column_name, file, separator):
     rf = pd.read_csv(file, sep = separator)
@@ -15,95 +14,67 @@ def csv_row_search(searched_value, column_name, file, separator):
             return idx
     return False
 
-def tb1_check(file):
-    #each sn needs to be present once
-    rf = pd.read_csv(file)
-    product_list = list(rf['SN'])
-    return [item for item, count in Counter(product_list).items() if count > 1]
-    
-def tb2_check(filetb1, filetb2):
-    #each sn from tb1 needs to be present twice
-    cnt = Counter()
-    rf1 = pd.read_csv(filetb1)
-    rf2 = pd.read_csv(filetb2)
-    tb1_product_list = list(set(rf1['SN'])) #deleting double
-    tb2_product_list = list(rf2['SN'])
-    for e in tb1_product_list:
-        cnt[e] =  0
-    for p in tb2_product_list:
-        cnt[p] += 1
-    for key in set(tb1_product_list + tb2_product_list):
-        if cnt[key]  > 2:
-            cnt[key] = 'seen {} times'.format(cnt[key])
-        if cnt[key] == 0:
-            cnt[key] = 'not seen'
-        if cnt[key] == 1:
-            cnt[key] = 'seen once'
-        if cnt[key] == 2:
-            del cnt[key]
-    return dict(cnt)
-
-def acceptance_check(filetb1, fileacc):
-    #all roducts from tb1 need to be presente once
-    rf1 = pd.read_csv(filetb1)
-    rf2 = pd.read_csv(fileacc, sep = ';')
-    tb1_product_list = set(rf1['SN'])
-    acc_product_list = set(rf2['Numero de serie'])
-    return list(tb1_product_list.difference(acc_product_list))
-
-def img_import(workbook, product_name):
-    #correction image problem (needs to be imported seperately)
-    img = drawing.image.Image('images/srett_xls_image.png')
-    img1= drawing.image.Image('images/srett_xls_image.png') #doesn't work with 1 variable
-    workbook[product_name].active.add_image(img, 'A1')
-    workbook[product_name].active.add_image(img1, 'A31')
-
+def csv_col_search(column_name, file, separator):
+    rf = pd.read_csv(file, sep = separator)
+    return rf.columns.get_loc(column_name)
 
 def get_list_from_csv_row(file, row, strat_col, end_col):
     ls=[]
-    #pdb.set_trace()
-    list_range = range(strat_col, end_col)
+    list_range = range(strat_col, end_col+1)
     df = pd.read_csv(file)
-    for cel in list_range:
-        ls.append(df.iloc[row, cel])
-    return ls
+    try:
+        for cel in list_range:
+            ls.append(df.iloc[row, cel])
+        return ls
+    except Exception:
+        log.error('Error importing list between {a} and {b} on row {c} from file {d}'.format(a=strat_col, b=end_col, c=row, d=file))
+
+def standard_dev(lst):
+    moy = mean(lst)
+    sum = 0
+    for val in lst:
+        sum += (val-moy)**2
+    return (sum/len(lst))**(1/2)
+
+def kick_if_noised(lst):
+    std_dev    = standard_dev(lst)
+    moy        = mean(lst)
+    noised_val = 0
+    if len(list(filter(lambda x: abs(x-moy) >= std_dev, lst))) > 3:
+        return False
+    else:
+        lst = list(filterfalse(lambda x: abs(x-moy) >= std_dev, lst))
+    return lst 
+
+def filter_conso(lst, min_treshold, max_treshold, mode):
+    filtered_lst    = []
+    filtered_lst_a  = []
+    filtered_lst_b  = []
+    cnt_wrong_state = 0
     
-def generate_pn(first_pn, products):
-    #code to be cleaned
-    pn_patern = r"(\d{7})(\.)(\d{3})"
-    pn_patern1 = r"\d{7}"
-    tested_patern = r"\d{2}"
-    tested_patern1 = r"\d{3}"
-    result = []
-
-    if re.search(pn_patern, first_pn):
-        m = re.search(pn_patern, first_pn)
-        first_PN0 = m.group(1) + m.group(2)
-        first_PN1 = m.group(3)
-    elif re.search(pn_patern1, first_pn):
-        first_PN0 = first_pn
-        first_PN1 = ""
-
-    for ind,product in enumerate(products):
-        if re.search(pn_patern, first_pn):
-            PN = first_PN0
-            PNext = str(int(first_PN1) + ind)
-            
-            #Completing number of digits from integer, needs to be XXX
-            if re.match(tested_patern1, str(PNext)):
-                PNext = str(PNext)
-            elif re.match(tested_patern, str(PNext)):
-                PNext = "0"+str(PNext)
-            else:
-                PNext = "00"+str(PNext)
+    for value in lst:
+        if min_treshold < value < max_treshold:
+            filtered_lst.append(value)
+            if mode == 'sleep' and cnt_wrong_state > 5 and not filtered_lst_a:
+                filtered_lst_a = filtered_lst
+                filtered_lst = []
+            elif mode == 'sleep' and cnt_wrong_state > 5 and filtered_lst_a:
+                filtered_lst_b = filtered_lst  
+        else:
+            cnt_wrong_state += 1
         
-        elif re.search(pn_patern1, first_pn):
-            PN = ""
-            PNext = str(int(first_PN0) + ind)
+    if mode == 'acqui' and len(filtered_lst) >= 2:
+        filtered_lst.pop(0)
+        filtered_lst.pop()
+    if mode == 'sleep' and len(filtered_lst_a) >= 2:
+        filtered_lst_a.pop()
+        filtered_lst_a.pop()
+        filtered_lst = filtered_lst_a + filtered_lst_b
 
-        result.append(str(PN) + str(PNext))
+    if standard_dev(filtered_lst) >= 0.000005:
+        filtered_lst = kick_if_noised(filtered_lst)
     
-    return result   
+    return filtered_lst
 
 def logging_manager():
     log = logging.getLogger()

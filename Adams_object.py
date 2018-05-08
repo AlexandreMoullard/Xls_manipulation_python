@@ -1,5 +1,6 @@
-import table_utils  as tu
-import HUMS_objects as ho
+import file_functions  as ff
+import HUMS_objects    as ho
+import functools       as ft
 import pdb #pdb.set_trace()
 import logging
 
@@ -33,7 +34,7 @@ class Adams(ho.Hums):
         wb         = {}
         wb[self.SN]= load_workbook(filename= self.pv)
         ws         = wb[self.SN].active
-        tu.img_import(wb, self.SN)
+        ff.img_import(wb, self.SN)
 
         self.fill_adams(ws)
         self.test_adams(ws)
@@ -152,6 +153,11 @@ class Adams(ho.Hums):
         except Exception:
             log.error('Transverse result failed on: {}'.format(self.SN))
         
+        max_transverse = max(self.hums_attributs['Shock (transverse X) axe Y'],self.hums_attributs['Shock (transverse X) axe Z'])
+        dic_transverse  = {key:self.hums_attributs[key] for key in ['Shock (transverse X) axe Y', 'Shock (transverse X) axe Z']}
+        name = str(max(dic_transverse.items(),  key=itemgetter(1))[0])
+        self.threshold_check(ws, 'T_src_trans', name, 'G171')
+
 
 
 

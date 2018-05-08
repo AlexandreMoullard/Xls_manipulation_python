@@ -1,6 +1,8 @@
-import pytest       as pt
-import HUMS_objects as ho
-import table_utils  as tu
+import pytest         as pt
+import HUMS_objects   as ho
+import Adams_object   as ao
+import Eden_object    as eo
+import file_functions as ff
 import style_patch
 import pdb #pdb.set_trace()
 
@@ -22,9 +24,9 @@ batch.product_type_id()
 
 #defining batch type
 if batch.product_type == 'E':
-    product = ho.Eden('E00217', data_files.files())
+    product = eo.Eden('E00217', data_files.files())
 elif batch.product_type == 'A':
-    product = ho.Adams('A00155', data_files.files())
+    product = ao.Adams('A00155', data_files.files())
 
 # Running functions using files
 batch.generated_pn(first_real_pn)
@@ -36,7 +38,7 @@ product.get_consumption(data_files.files())
 wb = {}
 wb[product.SN]    = load_workbook(filename= product.pv)
 ws                = wb[product.SN].active
-tu.img_import(wb, product.SN)
+ff.img_import(wb, product.SN)
 
 # Running functions using workbooks
 product.batch_fill_pv(batch.products, ws)
@@ -73,9 +75,9 @@ def test_get_attributs1():
 def test_consumption_sleep():
     assert product.hums_attributs['conso_sleep'] == 235.3
 def test_consumption_acq():
-    assert product.hums_attributs['conso_acq']   == 4412.3
+    assert product.hums_attributs['conso_acq']   == 4420.8
 def test_consumption_stock():
-    assert product.hums_attributs['conso_stock'] == 15.6
+    assert product.hums_attributs['conso_stock'] == 15.5
 
 def test_batch_fill_pv():
 	assert ws['D13'].value == 'E00213' 

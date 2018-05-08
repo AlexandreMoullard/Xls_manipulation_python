@@ -1,8 +1,8 @@
-import pytest       as pt
-import HUMS_objects as ho
-import Adams_object as ao
-import Eden_object  as eo
-import table_utils  as tu
+import pytest         as pt
+import HUMS_objects   as ho
+import Adams_object   as ao
+import Eden_object    as eo
+import file_functions as ff
 import style_patch
 import pdb #pdb.set_trace()
 
@@ -37,7 +37,7 @@ def file_gen(template_file, tb1_file, tb2_file, accept_file, first_pn=1000636, f
         wb = {}
         wb[p.SN] = load_workbook(filename= p.pv)
         ws       = wb[p.SN].active
-        tu.img_import(wb, p.SN)
+        ff.img_import(wb, p.SN)
 
         # Running functions using workbooks
         p.batch_fill_pv(batch.products, ws)
