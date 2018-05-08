@@ -1,5 +1,6 @@
 import table_utils  as tu
 import HUMS_objects as ho
+import functools    as ft
 import pdb #pdb.set_trace()
 import logging
 
@@ -10,7 +11,7 @@ log = logging.getLogger(__name__)
 
 class Eden(ho.Hums):
     def __init__(self, SN, files):
-        Hums.__init__(self, SN, files)        
+        ho.Hums.__init__(self, SN, files)        
         #defining test results of eden
         #4 types of tets:  S = status, T = thresholds, R = tolerence ref, P = % ref
         """
@@ -153,6 +154,26 @@ class Eden(ho.Hums):
         name = str(max(dic_transverse.items(),  key=itemgetter(1))[0])
         self.threshold_check(ws, 'T_src_trans', name, 'G171')
         """
+    def get_consumption(self, files):
+        #for sleep mode the EDEN consumption columns are: 50 to 57 + 82 to 89, taken with 1 column security margin does:
+        #for sleep mode the ADAMS consumption columns are identical but - 2 columns
+        css1 = 50; ces1 = 55; css2 = 83; ces2=89
+        csa  = 59; cea  = 79
+        csst = 99; cest = 109
+
+        list_conso_sleep = tu.get_list_from_csv_row(files[1], self.test_bench_1_row, css1, ces1) + tu.get_list_from_csv_row(files[1], self.test_bench_1_row, css2, ces2)
+        list_conso_acq   = tu.get_list_from_csv_row(files[1], self.test_bench_1_row, csa, cea) 
+        list_conso_stock = tu.get_list_from_csv_row(files[1], self.test_bench_1_row, csst, cest)
+        
+        #mean calculation:
+        conso_sleep_raw  = ft.reduce(lambda x, y: x + y, list_conso_sleep)/len(list_conso_sleep)
+        conso_acq_raw    = ft.reduce(lambda x, y: x + y, list_conso_acq)  /len(list_conso_acq)
+        conso_stock_raw  = ft.reduce(lambda x, y: x + y, list_conso_stock)/len(list_conso_stock)
+        
+        #converting in µA: 
+        self.hums_attributs['conso_sleep'] = round(conso_sleep_raw*10**6, 1)
+        self.hums_attributs['conso_acq']   = round(conso_acq_raw*10**6  , 1)
+        self.hums_attributs['conso_stock'] = round(conso_stock_raw*10**6, 1)
 
 
 
