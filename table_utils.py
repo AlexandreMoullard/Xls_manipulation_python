@@ -5,6 +5,8 @@ import pandas as pd
 from itertools   import filterfalse
 from numpy import mean
 
+log = logging.getLogger(__name__)
+
 def csv_row_search(searched_value, column_name, file, separator):
     rf = pd.read_csv(file, sep = separator)
     column_list = list(rf[column_name])
@@ -39,9 +41,11 @@ def standard_dev(lst):
 def kick_if_noised(lst):
     std_dev    = standard_dev(lst)
     moy        = mean(lst)
-    noised_val = 0
-    if len(list(filter(lambda x: abs(x-moy) >= std_dev, lst))) > 3:
-        return False
+    noised_val = len(list(filter(lambda x: abs(x-moy) >= std_dev, lst)))
+    if  noised_val > 3:
+        return []
+        log.error('Too many kicked values: {}'.format(noised_val))
+
     else:
         lst = list(filterfalse(lambda x: abs(x-moy) >= std_dev, lst))
     return lst 
@@ -52,6 +56,9 @@ def filter_conso(lst, min_treshold, max_treshold, mode):
     filtered_lst_b  = []
     cnt_wrong_state = 0
     
+    if not lst:
+        return []
+
     for value in lst:
         if min_treshold < value < max_treshold:
             filtered_lst.append(value)
@@ -75,6 +82,14 @@ def filter_conso(lst, min_treshold, max_treshold, mode):
         filtered_lst = kick_if_noised(filtered_lst)
     
     return filtered_lst
+
+def rounding_list(lst, round_num):
+    try:
+        return [round(x, round_num) for x in lst]
+    except Exception:
+        log.error('Error rounding list')
+        #log.exception('message')
+        return []
 
 def logging_manager():
     log = logging.getLogger()
