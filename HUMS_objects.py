@@ -166,18 +166,19 @@ class Hums:
         acq_high_fltr   = 0.006000
         sleep_low_fltr  = 0
         sleep_high_fltr = 0.000500
+        row             = self.test_bench_1_row
 
         #acquisition mode and sleep mode
         start_col   = tu.csv_col_search('Consumption 1' , file[1], ',')
         end_col     = tu.csv_col_search('Consumption 40', file[1], ',')
-        total_conso = [round(x, 10) for x in tu.get_list_from_csv_row(file[1], self.test_bench_1_row, start_col, end_col)]
+        total_conso = tu.rounding_list(tu.get_list_from_csv_row(file[1], row, start_col, end_col), 10)
         acqui_mode  = tu.filter_conso(total_conso, acq_low_fltr, acq_high_fltr, 'acqui')
         sleep_mode  = tu.filter_conso(total_conso, sleep_low_fltr, sleep_high_fltr, 'sleep')
         
         #stock mode
         stock_start_col = tu.csv_col_search('Consumption Ds1' , file[1], ',')
         stock_end_col   = tu.csv_col_search('Consumption Ds11' , file[1], ',')
-        stock_mode      = [round(x, 10) for x in tu.get_list_from_csv_row(file[1], self.test_bench_1_row, stock_start_col, stock_end_col)]
+        stock_mode      = tu.rounding_list(tu.get_list_from_csv_row(file[1], row, stock_start_col, stock_end_col), 10)
         
         #Rounding values
         conso_sleep = round(mean(sleep_mode)*10**6, 1)
