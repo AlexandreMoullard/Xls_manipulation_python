@@ -76,7 +76,7 @@ class Hums:
         wb          = {}
         wb[self.SN] = load_workbook(filename= template)
         ws          = wb[self.SN].active
-        #ff.img_import(wb, self.SN)
+        ff.img_import(wb, self.SN)
         self.pv     =  PN  + '.AA_' + self.SN + '_PVAI.xlsx'
         self.batch_fill_pv(batch, ws)
         self.pv_header(PN, ws)
@@ -136,7 +136,7 @@ class Hums:
         except Exception:
             log.error('Status value failled for cell {} on product {}'.format(result_cell, self.SN))
 
-    def tolerence_check(self, ws, tolerence, tested_attribut, reference, result_cell, percent=False):
+    def tolerence_check(self, ws, tolerence, tested_attribut, reference, result_cell, mode='VALUE', tolerence1=0):
         try:
             if self.hums_attributs[tested_attribut]:
                 value = round(self.hums_attributs[tested_attribut], 2)
@@ -144,14 +144,18 @@ class Hums:
                 ws[result_cell] = 'NOK'
                 return
 
-            out_cell = result_cell
-            inp_cell = result_cell.replace('G', 'F')
-            if percent:
-                tol = (self.waited_test_result[tolerence]/100)*self.hums_attributs[reference]
-            else:
+            # tolerence is defined on the mode of the test
+            # PERCENT mode calculates the treshold using the tolerence as a percent of reference value
+            # VALUE mode calculates the treshold as a normale treshold : + and - the treshold value defined
+            # BOTH mode calculates the treshold by adding both modes
+            if mode == 'PERCENT':
+                tol = (self.waited_test_result[tolerence]/100)*abs(self.hums_attributs[reference])
+            elif mode == 'VALUE':
                 tol = self.waited_test_result[tolerence]
+            elif mode == 'BOTH':
+            	tol = (self.waited_test_result[tolerence1]/100)*abs(self.hums_attributs[reference]) + self.waited_test_result[tolerence]
 
-            if self.hums_attributs[reference] - tol <= value <=  self.hums_attributs[reference] + tol:
+            if abs(self.hums_attributs[reference]) - tol <= abs(value) <=  abs(self.hums_attributs[reference]) + tol:
                 ws[result_cell] = 'OK'
             else :
                 ws[result_cell] = 'NOK'

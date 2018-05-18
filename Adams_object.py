@@ -123,6 +123,7 @@ class Adams(ho.Hums):
             ws['F219']    = str(min(dic_ecrt_high.items(), key=itemgetter(1))[0][12:])
 
     def test_adams(self, ws):
+        #Thresholded values checked
         self.threshold_check(ws, 'T_conso_veil' , 'conso_sleep', 'G107')
         self.threshold_check(ws, 'T_conso_perio', 'conso_acq'  , 'G108')
         self.threshold_check(ws, 'T_conso_stock', 'conso_stock', 'G109')
@@ -130,15 +131,16 @@ class Adams(ho.Hums):
         self.threshold_check(ws, 'T_poids', 'Poids', 'G137')
         self.threshold_check(ws, 'T_conti_libre', 'Resultat de la valeur de mesure du HUMS libre au milliohmetre', 'G140')
         self.threshold_check(ws, 'T_conti_monte', 'Resultat de la valeur de mesure du HUMS monte au milliohmetre', 'G141')
+        #Tolerenced values checked
         self.tolerence_check(ws, 'R_temperature', 'Temperature Hums 2', 'Temperature Ref 2', 'G154')
         self.tolerence_check(ws, 'R_temperature', 'Temperature Hums 3', 'Temperature Ref 3', 'G155')
         self.tolerence_check(ws, 'R_temperature', 'Temperature Hums 1', 'Temperature Ref 1', 'G156')
         self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 2', 'Humidite Ref 2', 'G158')
         self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 3', 'Humidite Ref 3', 'G159')
         self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 1', 'Humidite Ref 1', 'G160')
-        self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur X', 'Resultat de la valeur de reference de vibration sur X', 'G166', True)
-        self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur Y', 'Resultat de la valeur de reference de vibration sur Y', 'G167', True)
-        self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur Z', 'Resultat de la valeur de reference de vibration sur Z', 'G168', True)
+        self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur X', 'Resultat de la valeur de reference de vibration sur X', 'G166', 'PERCENT')
+        self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur Y', 'Resultat de la valeur de reference de vibration sur Y', 'G167', 'PERCENT')
+        self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur Z', 'Resultat de la valeur de reference de vibration sur Z', 'G168', 'PERCENT')
         self.threshold_check(ws, 'T_src', 'Ecart max de l\'analyse SRC X', 'G170')
         self.threshold_check(ws, 'T_src', 'Ecart max de l\'analyse SRC X', 'G172')
         self.threshold_check(ws, 'T_src', 'Ecart max de l\'analyse SRC X', 'G173')

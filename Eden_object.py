@@ -1,6 +1,6 @@
-import table_utils  as tu
-import HUMS_objects as ho
-import functools    as ft
+import file_functions  as ff
+import HUMS_objects    as ho
+import functools       as ft
 import pdb #pdb.set_trace()
 import logging
 
@@ -11,30 +11,31 @@ log = logging.getLogger(__name__)
 
 class Eden(ho.Hums):
     def __init__(self, SN, files):
-        ho.Hums.__init__(self, SN, files)        
+        ho.Hums.__init__(self, SN, files)
+        
         #defining test results of eden
         #4 types of tets:  S = status, T = thresholds, R = tolerence ref, P = % ref
-        """
-        self.waited_test_result['T_conso_veil']  = [225, 275]
-        self.waited_test_result['T_conso_perio'] = [4000, 4500]
-        self.waited_test_result['T_conso_stock'] = [10, 30]
-        self.waited_test_result['T_compr_joint'] = [3.15, 4.15]
+        self.waited_test_result['T_conso_veil']  = [215, 250]
+        self.waited_test_result['T_conso_perio'] = [4250, 4500]
+        self.waited_test_result['T_conso_stock'] = [10, 20]
+        self.waited_test_result['T_compr_joint'] = [73.2, 74.2]
         self.waited_test_result['T_poids']       = [0, 1250]
-        self.waited_test_result['S_gabarit_dim'] = 'OK'
-        self.waited_test_result['T_conti_libre'] = [0, 1]
-        self.waited_test_result['T_conti_monte'] = [0, 1.5]
-        self.waited_test_result['S_led']         = 'OK'
+        self.waited_test_result['T_conti_cable'] = [0, 25]
+        self.waited_test_result['T_conti_capot'] = [0, 5]
+        self.waited_test_result['T_long_cable']  = [340, 360]
+        self.waited_test_result['R_pressure']    = 50
         self.waited_test_result['R_temperature'] = 1
         self.waited_test_result['R_humidity']    = 5
         self.waited_test_result['P_vibration']   = 10
-        self.waited_test_result['T_src']         = [0, 10]
-        self.waited_test_result['T_src_trans']   = [0, 15]
-        """
+        self.waited_test_result['R_choc']        = 1
+        self.waited_test_result['P_choc']        = 10
+        self.waited_test_result['T_choc_trans']  = 20
+
     def fill_pv(self, ws):
         wb         = {}
         wb[self.SN]= load_workbook(filename= self.pv)
         ws         = wb[self.SN].active
-        tu.img_import(wb, self.SN)
+        ff.img_import(wb, self.SN)
 
         self.fill_eden(ws)
         self.test_eden(ws)
@@ -43,137 +44,110 @@ class Eden(ho.Hums):
 
 
     def fill_eden(self, ws):
-        pass
-        """
         #Conso and other tests
         self.writing_tester(ws, 'F107', 'conso_sleep', ' µA')
         self.writing_tester(ws, 'F108', 'conso_acq', ' µA')
         self.writing_tester(ws, 'F109', 'conso_stock', ' µA')
         self.writing_tester(ws, 'F111', 'Compression joints piles', ' mm')
-        self.writing_tester(ws, 'F137', 'Poids', 'g')
-        self.writing_tester(ws, 'F139', 'Resultat du test gabarit')
-        self.writing_tester(ws, 'F140', 'Resultat de la valeur de mesure du HUMS libre au milliohmetre', ' mΩ')
-        self.writing_tester(ws, 'F141', 'Resultat de la valeur de mesure du HUMS monte au milliohmetre', ' mΩ')
-
-        #Led button
-        if self.hums_attributs['Resultat test bouton vert'] == 'OK' and self.hums_attributs['Resultat test bouton rouge'] == 'OK':
-            self.writing_tester(ws, 'F152', 'Resultat test bouton vert')
-        else:
-            ws['F152'] = 'NOK'        
+        self.writing_tester(ws, 'F162', 'Poids', 'g')
+        self.writing_tester(ws, 'F166', 'Continuite electrique capot', ' mΩ')
+        self.writing_tester(ws, 'F165', 'Continuite electrique cable', ' mΩ')
+        self.writing_tester(ws, 'F158', 'Longueur de cable', ' mm')
+    
 
         #Temperature
-        self.writing_tester(ws, 'F154', 'Temperature Hums 2', '°C', 1)
-        self.writing_tester(ws, 'F155', 'Temperature Hums 3', '°C', 1)
-        self.writing_tester(ws, 'F156', 'Temperature Hums 1', '°C', 1)
+        self.writing_tester(ws, 'F171', 'Temperature Hums 2', '°C', 1)
+        self.writing_tester(ws, 'F172', 'Temperature Hums 3', '°C', 1)
+        self.writing_tester(ws, 'F173', 'Temperature Hums 1', '°C', 1)
 
-        self.writing_tester(ws, 'D154', 'Temperature Ref 2', '°C', 1)
-        self.writing_tester(ws, 'D155', 'Temperature Ref 3', '°C', 1)
-        self.writing_tester(ws, 'D156', 'Temperature Ref 1', '°C', 1)
+        self.writing_tester(ws, 'D171', 'Temperature Ref 2', '°C', 1)
+        self.writing_tester(ws, 'D172', 'Temperature Ref 3', '°C', 1)
+        self.writing_tester(ws, 'D173', 'Temperature Ref 1', '°C', 1)
 
         #Humidity
-        self.writing_tester(ws, 'F158', 'Humidite Hums 2', '%', 1)
-        self.writing_tester(ws, 'F159', 'Humidite Hums 3', '%', 1)
-        self.writing_tester(ws, 'F160', 'Humidite Hums 1', '%', 1)
+        self.writing_tester(ws, 'F175', 'Humidite Hums 2', '%', 1)
+        self.writing_tester(ws, 'F176', 'Humidite Hums 3', '%', 1)
+        self.writing_tester(ws, 'F177', 'Humidite Hums 1', '%', 1)
 
-        self.writing_tester(ws, 'D158', 'Humidite Ref 2', '%', 1)
-        self.writing_tester(ws, 'D159', 'Humidite Ref 3', '%', 1)
-        self.writing_tester(ws, 'D160', 'Humidite Ref 1', '%', 1)
+        self.writing_tester(ws, 'D175', 'Humidite Ref 2', '%', 1)
+        self.writing_tester(ws, 'D176', 'Humidite Ref 3', '%', 1)
+        self.writing_tester(ws, 'D177', 'Humidite Ref 1', '%', 1)
+
+        #Pressure
+        self.writing_tester(ws, 'F179', 'Pression Hums 2', ' hPa', 1)
+        self.writing_tester(ws, 'F180', 'Pression Hums 3', ' hPa', 1)
+        self.writing_tester(ws, 'F181', 'Pression Hums 1', ' hPa', 1)
+
+        self.writing_tester(ws, 'D179', 'Pression Ref 2', ' hPa', 1)
+        self.writing_tester(ws, 'D180', 'Pression Ref 3', ' hPa', 1)
+        self.writing_tester(ws, 'D181', 'Pression Ref 1', ' hPa', 1)
 
         #Vibrations
-        self.writing_tester(ws, 'F166', 'Resultat de la mesure de vibration sur X', ' grms', 2)
-        self.writing_tester(ws, 'F167', 'Resultat de la mesure de vibration sur Y', ' grms', 2)
-        self.writing_tester(ws, 'F168', 'Resultat de la mesure de vibration sur Z', ' grms', 2)
+        self.writing_tester(ws, 'F117', 'Resultat de la mesure de vibration sur X', ' grms', 2)
+        self.writing_tester(ws, 'F118', 'Resultat de la mesure de vibration sur Y', ' grms', 2)
+        self.writing_tester(ws, 'F119', 'Resultat de la mesure de vibration sur Z', ' grms', 2)
 
-        self.writing_tester(ws, 'D166', 'Resultat de la valeur de reference de vibration sur X', ' grms', 2)
-        self.writing_tester(ws, 'D167', 'Resultat de la valeur de reference de vibration sur Y', ' grms', 2)
-        self.writing_tester(ws, 'D168', 'Resultat de la valeur de reference de vibration sur Z', ' grms', 2)
+        self.writing_tester(ws, 'D117', 'Resultat de la valeur de reference de vibration sur X', ' grms', 2)
+        self.writing_tester(ws, 'D118', 'Resultat de la valeur de reference de vibration sur Y', ' grms', 2)
+        self.writing_tester(ws, 'D119', 'Resultat de la valeur de reference de vibration sur Z', ' grms', 2)
 
         #Chocs
-        self.writing_tester(ws, 'F170', 'Ecart max de l\'analyse SRC X', '%', 2)
-        self.writing_tester(ws, 'F172', 'Ecart max de l\'analyse SRC Y', '%', 2)
-        self.writing_tester(ws, 'F173', 'Ecart max de l\'analyse SRC Z', '%', 2)
+        self.writing_tester(ws, 'F188', 'Valeur mesuree des chocs sur l\'axe X', ' g', 2)
+        self.writing_tester(ws, 'D188', 'Valeur de reference des chocs sur l\'axe X', ' g', 2)
+        self.writing_tester(ws, 'F189', 'Shock (transverse) axe Y', ' g', 2)
+        self.writing_tester(ws, 'F190', 'Shock (transverse) axe Z', ' g', 2)
+        self.writing_tester(ws, 'F194', 'Duree choc axe X (ms)', ' ms', 1)
 
-        ws['D170'] = '-'
-        ws['D171'] = '-'
-        ws['D172'] = '-'
-        ws['D173'] = '-'
-        
-        try:
-            max_transverse = max(self.hums_attributs['Shock (transverse X) axe Y'],self.hums_attributs['Shock (transverse X) axe Z'])    
-            ws['F171'] = str(round(max_transverse, 2)) + '%'
-        except Exception:
-            max_transverse = 0
-            log.error('Max transverse calculation error on product: {}'.format(self.SN))
+        self.writing_tester(ws, 'F195', 'Valeur mesuree des chocs sur l\'axe Y', ' g', 2)
+        self.writing_tester(ws, 'D195', 'Valeur de reference des chocs sur l\'axe Y', ' g', 2)
+        self.writing_tester(ws, 'F196', 'Shock (transverse) axe X', ' g', 2)
+        self.writing_tester(ws, 'F197', 'Shock (transverse) axe Z', ' g', 2)
+        self.writing_tester(ws, 'F198', 'Duree choc axe Y (ms)', ' ms', 1)
 
-        
-        #Ecretage
-        try:
-            ecret_min_low = min(self.hums_attributs['Ecretage -20 axe X'], self.hums_attributs['Ecretage -20 axe Y'], self.hums_attributs['Ecretage -20 axe Z'])
-            ecret_min_hig = min(self.hums_attributs['Ecretage 70 axe X'] , self.hums_attributs['Ecretage 70 axe Y'] , self.hums_attributs['Ecretage 70 axe Z'] )
-            ws['D218'] = str(round(ecret_min_low, 1)) + ' g'
-            ws['D219'] = str(round(ecret_min_hig, 1)) + ' g'
-        except Exception:
-            ecret_min_low = 0
-            ecret_min_hig = 0
-            log.error('Ecretage minimal calculation error on product: {}'.format(self.SN))
-        
-        #Retrieving axis of mininimum ecretage
-        if ecret_min_low and ecret_min_hig:
-            dic_ecrt_low  = {key:self.hums_attributs[key] for key in ['Ecretage -20 axe X', 'Ecretage -20 axe Y', 'Ecretage -20 axe Z']}
-            dic_ecrt_high = {key:self.hums_attributs[key] for key in ['Ecretage 70 axe X' , 'Ecretage 70 axe Y' , 'Ecretage 70 axe Z'] }
-            ws['F218']    = str(min(dic_ecrt_low.items(),  key=itemgetter(1))[0][13:])
-            ws['F219']    = str(min(dic_ecrt_high.items(), key=itemgetter(1))[0][12:])
-        """
+        self.writing_tester(ws, 'F199', 'Valeur mesuree des chocs sur l\'axe Z', ' g', 2)
+        self.writing_tester(ws, 'D199', 'Valeur de reference des chocs sur l\'axe Z', ' g', 2)
+        self.writing_tester(ws, 'F200', 'Shock (transverse) axe X', ' g', 2)
+        self.writing_tester(ws, 'F201', 'Shock (transverse) axe Y', ' g', 2)
+        self.writing_tester(ws, 'F202', 'Duree choc axe Z (ms)', ' ms', 1)
+
+
     def test_eden(self, ws):
-        pass
-        """
+        #Thresholded values checked
         self.threshold_check(ws, 'T_conso_veil' , 'conso_sleep', 'G107')
         self.threshold_check(ws, 'T_conso_perio', 'conso_acq'  , 'G108')
         self.threshold_check(ws, 'T_conso_stock', 'conso_stock', 'G109')
         self.threshold_check(ws, 'T_compr_joint', 'Compression joints piles', 'G111')
-        self.threshold_check(ws, 'T_poids', 'Poids', 'G137')
-        self.threshold_check(ws, 'T_conti_libre', 'Resultat de la valeur de mesure du HUMS libre au milliohmetre', 'G140')
-        self.threshold_check(ws, 'T_conti_monte', 'Resultat de la valeur de mesure du HUMS monte au milliohmetre', 'G141')
-        self.tolerence_check(ws, 'R_temperature', 'Temperature Hums 2', 'Temperature Ref 2', 'G154')
-        self.tolerence_check(ws, 'R_temperature', 'Temperature Hums 3', 'Temperature Ref 3', 'G155')
-        self.tolerence_check(ws, 'R_temperature', 'Temperature Hums 1', 'Temperature Ref 1', 'G156')
-        self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 2', 'Humidite Ref 2', 'G158')
-        self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 3', 'Humidite Ref 3', 'G159')
-        self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 1', 'Humidite Ref 1', 'G160')
-        self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur X', 'Resultat de la valeur de reference de vibration sur X', 'G166', True)
-        self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur Y', 'Resultat de la valeur de reference de vibration sur Y', 'G167', True)
-        self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur Z', 'Resultat de la valeur de reference de vibration sur Z', 'G168', True)
-        self.threshold_check(ws, 'T_src', 'Ecart max de l\'analyse SRC X', 'G170')
-        self.threshold_check(ws, 'T_src', 'Ecart max de l\'analyse SRC X', 'G172')
-        self.threshold_check(ws, 'T_src', 'Ecart max de l\'analyse SRC X', 'G173')
-        self.status_check(ws, 'S_gabarit_dim', 'G139')
-        self.status_check(ws, 'S_led', 'G152')
-
-        max_transverse = max(self.hums_attributs['Shock (transverse X) axe Y'],self.hums_attributs['Shock (transverse X) axe Z'])
-        dic_transverse  = {key:self.hums_attributs[key] for key in ['Shock (transverse X) axe Y', 'Shock (transverse X) axe Z']}
-        name = str(max(dic_transverse.items(),  key=itemgetter(1))[0])
-        self.threshold_check(ws, 'T_src_trans', name, 'G171')
-        """
-    def get_consumption(self, files):
-        #for sleep mode the EDEN consumption columns are: 50 to 57 + 82 to 89, taken with 1 column security margin does:
-        #for sleep mode the ADAMS consumption columns are identical but - 2 columns
-        css1 = 50; ces1 = 55; css2 = 83; ces2=89
-        csa  = 59; cea  = 79
-        csst = 99; cest = 109
-
-        list_conso_sleep = tu.get_list_from_csv_row(files[1], self.test_bench_1_row, css1, ces1) + tu.get_list_from_csv_row(files[1], self.test_bench_1_row, css2, ces2)
-        list_conso_acq   = tu.get_list_from_csv_row(files[1], self.test_bench_1_row, csa, cea) 
-        list_conso_stock = tu.get_list_from_csv_row(files[1], self.test_bench_1_row, csst, cest)
+        self.threshold_check(ws, 'T_poids', 'Poids', 'G162')
+        self.threshold_check(ws, 'T_conti_capot', 'Continuite electrique capot', 'G166')
+        self.threshold_check(ws, 'T_conti_cable', 'Continuite electrique cable', 'G165')
+        self.threshold_check(ws, 'T_long_cable', 'Longueur de cable', 'G158')
+        #Tolerenced values checked
+        self.tolerence_check(ws, 'R_temperature', 'Temperature Hums 2', 'Temperature Ref 2', 'G171')
+        self.tolerence_check(ws, 'R_temperature', 'Temperature Hums 3', 'Temperature Ref 3', 'G172')
+        self.tolerence_check(ws, 'R_temperature', 'Temperature Hums 1', 'Temperature Ref 1', 'G173')
+        self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 2', 'Humidite Ref 2', 'G175')
+        self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 3', 'Humidite Ref 3', 'G176')
+        self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 1', 'Humidite Ref 1', 'G177')
+        self.tolerence_check(ws, 'R_pressure', 'Pression Hums 2', 'Pression Ref 2', 'G179')
+        self.tolerence_check(ws, 'R_pressure', 'Pression Hums 3', 'Pression Ref 3', 'G180')
+        self.tolerence_check(ws, 'R_pressure', 'Pression Hums 1', 'Pression Ref 1', 'G181')
+        self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur X', 'Resultat de la valeur de reference de vibration sur X', 'G117', 'PERCENT')
+        self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur Y', 'Resultat de la valeur de reference de vibration sur Y', 'G118', 'PERCENT')
+        self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur Z', 'Resultat de la valeur de reference de vibration sur Z', 'G119', 'PERCENT')
         
-        #mean calculation:
-        conso_sleep_raw  = ft.reduce(lambda x, y: x + y, list_conso_sleep)/len(list_conso_sleep)
-        conso_acq_raw    = ft.reduce(lambda x, y: x + y, list_conso_acq)  /len(list_conso_acq)
-        conso_stock_raw  = ft.reduce(lambda x, y: x + y, list_conso_stock)/len(list_conso_stock)
-        
-        #converting in µA: 
-        self.hums_attributs['conso_sleep'] = round(conso_sleep_raw*10**6, 1)
-        self.hums_attributs['conso_acq']   = round(conso_acq_raw*10**6  , 1)
-        self.hums_attributs['conso_stock'] = round(conso_stock_raw*10**6, 1)
+        self.tolerence_check(ws, 'R_choc', 'Valeur mesuree des chocs sur l\'axe X', 'Valeur de reference des chocs sur l\'axe X', 'G188', 'BOTH', 'P_choc')
+        self.tolerence_check(ws, 'P_choc_trans', 'Shock (transverse) axe Y', 'Shock (transverse) axe X', 'G189', 'PERCENT')
+        self.tolerence_check(ws, 'P_choc_trans', 'Shock (transverse) axe Z', 'Shock (transverse) axe X', 'G190', 'PERCENT')
+        self.tolerence_check(ws, 'R_choc', 'Valeur mesuree des chocs sur l\'axe Y', 'Valeur de reference des chocs sur l\'axe Y', 'G195', 'BOTH', 'P_choc')
+        self.tolerence_check(ws, 'P_choc_trans', 'Shock (transverse) axe X', 'Shock (transverse) axe Y', 'G196', 'PERCENT')
+        self.tolerence_check(ws, 'P_choc_trans', 'Shock (transverse) axe Z', 'Shock (transverse) axe Y', 'G197', 'PERCENT')
+        self.tolerence_check(ws, 'R_choc', 'Valeur mesuree des chocs sur l\'axe Z', 'Valeur de reference des chocs sur l\'axe Z', 'G199', 'BOTH', 'P_choc')
+        self.tolerence_check(ws, 'P_choc_trans', 'Shock (transverse) axe X', 'Shock (transverse) axe Z', 'G200', 'PERCENT')
+        self.tolerence_check(ws, 'P_choc_trans', 'Shock (transverse) axe Y', 'Shock (transverse) axe Z', 'G201', 'PERCENT')
+
+
+
+
 
 
 
