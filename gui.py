@@ -3,7 +3,7 @@ from tkinter.ttk import *
 from PIL import Image, ImageTk
 from tkinter import filedialog
 import os
-import tasks
+import file_maker as fm
 
 class OptionsWindow():
     def __init__(self, dirBancDeTest=None):
@@ -20,10 +20,7 @@ class OptionsWindow():
 
             root.title("Selection de fichier de production")
             root.resizable(width=False, height=False)
-            img = ImageTk.PhotoImage(file='srett.png')
-            root.tk.call('wm', 'iconphoto', root._w, img)
-            if os.name == 'nt':
-                root.iconbitmap('srett.png') #not working on linux
+            root.iconbitmap('srett.ico')
 
             style = Style()
             style.configure('.', font=('Helvetica', 16), background="#3d4f6f")
@@ -45,6 +42,7 @@ class OptionsWindow():
             #Champ PVAI (sert de template)
             master = Frame(root, padding=5)
             master.pack()
+
             Label(master, text="PV à remplir (.xlsx)", style="BW.TLabel").grid(row=0, column=0)
             Label(master, textvariable=self.dirPv, style="Directory.TLabel").grid(row=1, column=0)
             Button(master, text="...", command=lambda: self.selectXlsx(1)).grid(row=1, column=1)
@@ -136,7 +134,7 @@ class OptionsWindow():
         
         if validation_counter == len(args)+ 1 : # all files ok is lengh of args + first PN check (so +1) 
         	self.root.destroy()
-        	tasks.task_manager(file0, file1, file2, file3, PN)
+        	fm.file_gen(file0, file1, file2, file3, PN)
            
 if __name__ == "__main__":
     OptionsWindow().show()

@@ -26,10 +26,10 @@ def file_gen(template_file, tb1_file, tb2_file, accept_file, first_pn=1000636, f
             product_obj_list.append(ao.Adams(p, data_files.files()))
 
     # Running functions using files
-    batch.generated_pn(first_real_pn)
+    batch.generated_pn(first_pn)
 
-    for p in product_obj_list:
-        p.generate_pv(template_file, first_pn, batch.products)
+    for idx,p in enumerate(product_obj_list):
+        p.generate_pv(template_file, batch.pn[idx], batch.products)
         p.get_attributs_from_acceptance(data_files.files())
         p.get_consumption(data_files.files())
 
@@ -41,7 +41,7 @@ def file_gen(template_file, tb1_file, tb2_file, accept_file, first_pn=1000636, f
 
         # Running functions using workbooks
         p.batch_fill_pv(batch.products, ws)
-        p.pv_header(first_real_pn, ws)
+        p.pv_header(first_pn, ws)
 
         #filling file
         p.fill_pv(ws)
@@ -53,5 +53,4 @@ if __name__=='__main__':
     tb2_file       = "tested_files/Step_2_lot_1727.csv"
     accept_file    = "donne_dirac/HUMS_ADAMS_LOT_17 06_20180427_153620.csv"
     first_pn       = '1000691_test'
-    first_real_pn  = str(1000691)
-    file_gen(template_file, tb1_file, tb2_file, accept_file, first_pn, first_real_pn)
+    file_gen(template_file, tb1_file, tb2_file, accept_file, first_pn)

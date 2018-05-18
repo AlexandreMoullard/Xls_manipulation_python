@@ -35,6 +35,33 @@ def patch_worksheet():
         if range_string not in self.merged_cells:
             self.merged_cells.add(range_string)
 
+        min_col, min_row, max_col, max_row = range_boundaries(range_string)
+        for merge_range in self._merged_cells[:]:
+            merge_min_col, merge_min_row, merge_max_col, merge_max_row = range_boundaries(merge_range)
+            issubset = ((min_row <= merge_min_row <= merge_max_row <= max_row) and
+                        (min_col <= merge_min_col <= merge_max_col <= max_col))
+            if issubset:
+                # extend the existing range
+                self._merged_cells.remove(merge_range)
+                self._merged_cells.append(range_string)
+                break
+            issuperset = ((merge_min_row <= min_row <= max_row <= merge_max_row) and
+                          (merge_min_col <= min_col <= max_col <= merge_max_col))
+            if issuperset:
+                # ignore the range (already extended)
+                break
+            intercept = (((merge_min_row <= min_row <= merge_max_row) or
+                          (min_row <= merge_max_row <= max_row)) and
+                         ((merge_min_col <= min_col <= merge_max_col) or
+                          (min_col <= merge_max_col <= max_col)))
+            if intercept:
+                fmt = "The range {0} intercept the merged cells: {1}"
+                raise ValueError(fmt.format(range_string, merge_range))
+        else:
+            # merge cells
+            self._merged_cells.append(range_string)
+
+
 
         # The following is removed by this monkeypatch:
 

@@ -76,7 +76,7 @@ class Hums:
         wb          = {}
         wb[self.SN] = load_workbook(filename= template)
         ws          = wb[self.SN].active
-        ff.img_import(wb, self.SN)
+        #ff.img_import(wb, self.SN)
         self.pv     =  PN  + '.AA_' + self.SN + '_PVAI.xlsx'
         self.batch_fill_pv(batch, ws)
         self.pv_header(PN, ws)
@@ -109,8 +109,7 @@ class Hums:
                     log.error('No value found for: {} on product : {}'.format(attribut, self.SN))
             except Exception:
                 log.error('Error during calculation of: {} on product : {}'.format(attribut, self.SN))
-                raise
-    
+                    
     def threshold_check(self, ws, threshold, tested_attribut, result_cell):
         try:
             if self.hums_attributs[tested_attribut]:
