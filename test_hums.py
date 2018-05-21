@@ -73,9 +73,9 @@ def test_get_attributs1():
 	assert product.hums_attributs['Duree maximale des chocs enregistrés']     == 22.549768
 
 def test_consumption_sleep():
-    assert product.hums_attributs['conso_sleep'] == 235.3
+    assert product.hums_attributs['conso_sleep'] == 235.5
 def test_consumption_acq():
-    assert product.hums_attributs['conso_acq']   == 4420.8
+    assert product.hums_attributs['conso_acq']   == 4402.7
 def test_consumption_stock():
     assert product.hums_attributs['conso_stock'] == 15.5
 
