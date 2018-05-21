@@ -20,7 +20,7 @@ class OptionsWindow():
 
             root.title("Selection de fichier de production")
             root.resizable(width=False, height=False)
-            root.iconbitmap('srett.ico')
+            #root.iconbitmap('srett.ico')
 
             style = Style()
             style.configure('.', font=('Helvetica', 16), background="#3d4f6f")

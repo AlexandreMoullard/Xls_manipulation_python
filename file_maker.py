@@ -6,7 +6,6 @@ import file_functions as ff
 import style_patch
 import pdb #pdb.set_trace()
 
-from pathlib  import Path
 from openpyxl import load_workbook 
 
 def file_gen(template_file, tb1_file, tb2_file, accept_file, first_pn=1000636, first_real_pn=1000636):
