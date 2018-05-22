@@ -28,9 +28,9 @@ class Datafiles:
         if tb1_list_double:
             log.error('Products {} appears twice or more in {}, this file should contain only uniq product result'.format(tb1_list_double, self.file1))
         if tb2_dict_error:
-            log.error('The folowing problems: {} appears in {}, this file should contain each product twice'.format(tb2_dict_error, self.file2))
+            log.warning('The folowing problems: {} appears in {}, this file should contain each product twice'.format(tb2_dict_error, self.file2))
         if acc_list_missing:
-            log.error('The folowing products are missing: {} in {}, this file should contain the same products than the 1rs testbench step'.format(acc_list_missing, self.file3))
+            log.warning('The folowing products are missing: {} in {}, this file should contain the same products than the 1rs testbench step'.format(acc_list_missing, self.file3))
 
         return [tb1_list_double, tb2_dict_error, acc_list_missing]
 
@@ -106,9 +106,9 @@ class Hums:
                     else:
                         worksheet[cell_value] = str(self.hums_attributs[attribut]) + unit
                 else:
-                    log.error('No value found for: {} on product : {}'.format(attribut, self.SN))
+                    log.warning('No value found for:, {} on product : {}'.format(attribut, self.SN))
             except Exception:
-                log.error('Error during calculation of: {} on product : {}'.format(attribut, self.SN))
+                log.error('Error during calculation of:, {} on product : {}'.format(attribut, self.SN))
                     
     def threshold_check(self, ws, threshold, tested_attribut, result_cell):
         try:
@@ -116,16 +116,16 @@ class Hums:
                 value = round(self.hums_attributs[tested_attribut], 2)
             else:
                 ws[result_cell] = 'NOK'
-                log.error('Testing NOK for {} on product {}'.format(threshold, self.SN))
+                log.warning('Testing NOK for, {} on product {}'.format(threshold, self.SN))
                 return
 
             if self.waited_test_result[threshold][0] <= value <= self.waited_test_result[threshold][1]:
                 ws[result_cell] = 'OK'
             else:
                 ws[result_cell] = 'NOK'
-                log.error('Testing NOK for {} on product {}'.format(threshold, self.SN))
+                log.warning('Testing NOK for, {} on product {}'.format(threshold, self.SN))
         except Exception:
-            log.error('Testing value failled for {} on product {}'.format(threshold, self.SN))
+            log.error('Testing value failled for, {} on product {}'.format(threshold, self.SN))
 
     def status_check(self, ws, status, result_cell):
         try:
@@ -135,9 +135,9 @@ class Hums:
                 ws[out_cell] = 'OK'
             else:
                 ws[out_cell] = 'NOK'
-                log.error('Testing NOK for {} on product {}'.format(threshold, self.SN))
+                log.warning('Testing NOK for, {} on product {}'.format(threshold, self.SN))
         except Exception:
-            log.error('Status value failled for cell {} on product {}'.format(result_cell, self.SN))
+            log.error('Status value failled for cell, {} on product {}'.format(result_cell, self.SN))
 
     def tolerence_check(self, ws, tolerence, tested_attribut, reference, result_cell, mode='VALUE', tolerence1=0):
         try:
@@ -145,7 +145,7 @@ class Hums:
                 value = round(self.hums_attributs[tested_attribut], 2)
             else:
                 ws[result_cell] = 'NOK'
-                log.error('Testing NOK for {} on product {}'.format(threshold, self.SN))
+                log.warning('Testing NOK for, {} on product {}'.format(tolerence, self.SN))
                 return
 
             # tolerence is defined on the mode of the test
@@ -163,10 +163,10 @@ class Hums:
                 ws[result_cell] = 'OK'
             else :
                 ws[result_cell] = 'NOK'
-                log.error('Testing NOK for {} on product {}'.format(threshold, self.SN))
+                log.warning('Testing NOK for, {} on product {}'.format(tolerence, self.SN))
 
         except Exception:
-            log.error('Testing value failled for {} on product {}'.format(tolerence, self.SN))
+            log.error('Testing value failled for, {} on product {}'.format(tolerence, self.SN))
 
     def get_consumption(self, file):
         #value filtering tresholds
@@ -195,12 +195,12 @@ class Hums:
 
         #controling data & saving
         if not sleep_mode or not acqui_mode:
-            log.error('Consumption error: sleep mode is {} and acquisition mode is {} on product {}'.format(conso_sleep, conso_acq, self.SN))
+            log.error('Consumption error:, sleep mode is {} and acquisition mode is {} on product {}'.format(conso_sleep, conso_acq, self.SN))
             conso_sleep = 0
             conso_acq   = 0
         
         if len(set(sleep_mode + acqui_mode) - set(total_conso)) > 3:
-            log.error('Consumption error: too many kicked values on product {}'.format(self.SN))
+            log.error('Consumption error:, too many kicked values on product {}'.format(self.SN))
             conso_sleep = 0
             conso_acq   = 0
                      

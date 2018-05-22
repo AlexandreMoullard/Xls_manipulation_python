@@ -94,7 +94,7 @@ def rounding_list(lst, round_num):
 def logging_manager():
     log = logging.getLogger()
     hdlr = logging.FileHandler('logs.txt', mode='a')
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    formatter = logging.Formatter('%(asctime)s %(levelname)s, %(message)s')
     hdlr.setFormatter(formatter)
     log.addHandler(hdlr) 
     log.setLevel(logging.WARNING)
