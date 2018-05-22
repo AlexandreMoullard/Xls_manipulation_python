@@ -116,12 +116,14 @@ class Hums:
                 value = round(self.hums_attributs[tested_attribut], 2)
             else:
                 ws[result_cell] = 'NOK'
+                log.error('Testing NOK for {} on product {}'.format(threshold, self.SN))
                 return
 
             if self.waited_test_result[threshold][0] <= value <= self.waited_test_result[threshold][1]:
                 ws[result_cell] = 'OK'
             else:
                 ws[result_cell] = 'NOK'
+                log.error('Testing NOK for {} on product {}'.format(threshold, self.SN))
         except Exception:
             log.error('Testing value failled for {} on product {}'.format(threshold, self.SN))
 
@@ -133,6 +135,7 @@ class Hums:
                 ws[out_cell] = 'OK'
             else:
                 ws[out_cell] = 'NOK'
+                log.error('Testing NOK for {} on product {}'.format(threshold, self.SN))
         except Exception:
             log.error('Status value failled for cell {} on product {}'.format(result_cell, self.SN))
 
@@ -142,6 +145,7 @@ class Hums:
                 value = round(self.hums_attributs[tested_attribut], 2)
             else:
                 ws[result_cell] = 'NOK'
+                log.error('Testing NOK for {} on product {}'.format(threshold, self.SN))
                 return
 
             # tolerence is defined on the mode of the test
@@ -159,6 +163,7 @@ class Hums:
                 ws[result_cell] = 'OK'
             else :
                 ws[result_cell] = 'NOK'
+                log.error('Testing NOK for {} on product {}'.format(threshold, self.SN))
 
         except Exception:
             log.error('Testing value failled for {} on product {}'.format(tolerence, self.SN))
