@@ -133,8 +133,8 @@ class OptionsWindow():
             self.text_variable_PN.set('Unrecognised part number, format must be XXXXXXX or XXXXXXX.XXX')
         
         if validation_counter == len(args)+ 1 : # all files ok is lengh of args + first PN check (so +1) 
-        	self.root.destroy()
-        	fm.file_gen(file0, file1, file2, file3, PN)
+            self.root.destroy()
+            fm.file_gen(file0, file1, file2, file3, PN)
            
 if __name__ == "__main__":
     OptionsWindow().show()
