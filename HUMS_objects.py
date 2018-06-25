@@ -110,8 +110,16 @@ class Hums:
             except Exception:
                 log.error('Error during calculation of:, {} on product : {}'.format(attribut, self.SN))
                     
-    def threshold_check(self, ws, threshold, tested_attribut, result_cell):
+    def threshold_check(self, ws, threshold, tested_attribut, result_cell=False):
+        # This function writes the test result in specified cell on worksheet
+        # If there is no cell to write (aka = 0), the function returns a bool depending on test result
         try:
+
+            if not result_cell:
+                value = round(self.hums_attributs[tested_attribut], 2)
+                return self.waited_test_result[threshold][0] <= value <= self.waited_test_result[threshold][1]
+
+
             if self.hums_attributs[tested_attribut]:
                 value = round(self.hums_attributs[tested_attribut], 2)
             else:
@@ -139,8 +147,14 @@ class Hums:
         except Exception:
             log.error('Status value failled for cell, {} on product {}'.format(result_cell, self.SN))
 
-    def tolerence_check(self, ws, tolerence, tested_attribut, reference, result_cell, mode='VALUE', tolerence1=0):
+    def tolerence_check(self, ws, tolerence, tested_attribut, reference, result_cell=False, mode='VALUE', tolerence1=0):
         try:
+            # if there is no cell defined, the function returns a bool on a percent mode test taken from a list
+            if not result_cell:
+                tol = (self.hums_attributs[tolerence]/100)*abs(self.hums_attributs[reference])
+                value = (tested_attribut[0]**2 + tested_attribut[1]**2 + tested_attribut[2]**2)**(1/2)
+                return abs(self.hums_attributs[reference]) - tol <= abs(value) <=  abs(self.hums_attributs[reference]) + tol
+
             if self.hums_attributs[tested_attribut]:
                 value = round(self.hums_attributs[tested_attribut], 2)
             else:
@@ -148,10 +162,11 @@ class Hums:
                 log.warning('Testing NOK for, {} on product {}'.format(tolerence, self.SN))
                 return
 
-            # tolerence is defined on the mode of the test
+            # tolerence is defined by the mode of the test
             # PERCENT mode calculates the treshold using the tolerence as a percent of reference value
             # VALUE mode calculates the treshold as a normale treshold : + and - the treshold value defined
             # BOTH mode calculates the treshold by adding both modes
+            
             if mode == 'PERCENT':
                 tol = (self.waited_test_result[tolerence]/100)*abs(self.hums_attributs[reference])
             elif mode == 'VALUE':

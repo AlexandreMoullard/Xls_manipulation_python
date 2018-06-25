@@ -28,6 +28,7 @@ class Adams(ho.Hums):
         self.waited_test_result['P_vibration']   = 10
         self.waited_test_result['T_src']         = [0, 10]
         self.waited_test_result['T_src_trans']   = [0, 15]
+        self.waited_test_result['P_src_vect']    = 10
 
     def fill_pv(self, ws):
         wb         = {}
@@ -88,18 +89,36 @@ class Adams(ho.Hums):
         #Chocs
         self.writing_tester(ws, 'F170', 'Ecart max de l\'analyse SRC X', '%', 2)
         self.writing_tester(ws, 'F172', 'Ecart max de l\'analyse SRC Y', '%', 2)
-        self.writing_tester(ws, 'F173', 'Ecart max de l\'analyse SRC Z', '%', 2)
+        self.writing_tester(ws, 'F174', 'Ecart max de l\'analyse SRC Z', '%', 2)
 
         ws['D170'] = '-'
-        ws['D171'] = '-'
+        self.writing_tester(ws, 'D171', 'Valeur de reference des chocs post-calibration sur l\'axe X', 'g', 2)
         ws['D172'] = '-'
-        ws['D173'] = '-'
+        self.writing_tester(ws, 'D173', 'Valeur de reference des chocs post-calibration sur l\'axe Y', 'g', 2)
+        ws['D174'] = '-'
+        self.writing_tester(ws, 'D175', 'Valeur de reference des chocs post-calibration sur l\'axe Z', 'g', 2)
+
+        percent_trans    = lambda trans, choc: 100*abs(trans/choc)
+        percent_choc     = lambda value, ref : 100*abs((abs(value)-abs(ref))/ref)
         
         try:
-            max_transverse = max(self.hums_attributs['Shock (transverse X) axe Y'],self.hums_attributs['Shock (transverse X) axe Z'])    
-            ws['F171'] = str(round(max_transverse, 2)) + '%'
+            max_transverse_x = max(percent_trans(self.hums_attributs['Shock (transverse X) axe Y'], self.hums_attributs['Shock (transverse X) axe X']) , percent_trans(self.hums_attributs['Shock (transverse X) axe Z'], self.hums_attributs['Shock (transverse X) axe X']))
+            choc_vector_x    = (self.hums_attributs['Shock (transverse X) axe X']**2 + self.hums_attributs['Shock (transverse X) axe Y']**2 +self.hums_attributs['Shock (transverse X) axe Z']**2)**(1/2)
+            perc_vector_x    = percent_choc(choc_vector_x, self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe X'])
+            ws['F171']       = str(round(max_transverse_x, 1)) + '%' + '\n'+ str(round(perc_vector_x, 1)) + '%'
+
+            max_transverse_y = max(percent_trans(self.hums_attributs['Shock (transverse Y) axe X'], self.hums_attributs['Shock (transverse Y) axe Y']),percent_trans(self.hums_attributs['Shock (transverse Y) axe Z'], self.hums_attributs['Shock (transverse Y) axe Y']))
+            choc_vector_y    = (self.hums_attributs['Shock (transverse Y) axe X']**2 + self.hums_attributs['Shock (transverse Y) axe Y']**2 +self.hums_attributs['Shock (transverse Y) axe Z']**2)**(1/2)
+            perc_vector_y    = percent_choc(choc_vector_y, self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe Y'])
+            ws['F173']       = str(round(max_transverse_y, 1)) + '%' + '\n'+ str(round(perc_vector_y, 1)) + '%'
+
+            max_transverse_z = max(percent_trans(self.hums_attributs['Shock (transverse Z) axe X'], self.hums_attributs['Shock (transverse Z) axe Z']), percent_trans(self.hums_attributs['Shock (transverse Z) axe Y'], self.hums_attributs['Shock (transverse Z) axe Z']))
+            choc_vector_z    = (self.hums_attributs['Shock (transverse Z) axe X']**2 + self.hums_attributs['Shock (transverse Z) axe Y']**2 +self.hums_attributs['Shock (transverse Z) axe Z']**2)**(1/2)
+            perc_vector_z    = percent_choc(choc_vector_z, self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe Z'])
+            ws['F175']       = str(round(max_transverse_z, 1)) + '%' + '\n'+ str(round(perc_vector_z, 1)) + '%'
+
         except Exception:
-            max_transverse = 0
+            max_transverse_x = 0
             log.error('Max transverse calculation error on product: {}'.format(self.SN))
 
         
@@ -107,8 +126,8 @@ class Adams(ho.Hums):
         try:
             ecret_min_low = min(self.hums_attributs['Ecretage -20 axe X'], self.hums_attributs['Ecretage -20 axe Y'], self.hums_attributs['Ecretage -20 axe Z'])
             ecret_min_hig = min(self.hums_attributs['Ecretage 70 axe X'] , self.hums_attributs['Ecretage 70 axe Y'] , self.hums_attributs['Ecretage 70 axe Z'] )
-            ws['D218'] = str(round(ecret_min_low, 1)) + ' g'
-            ws['D219'] = str(round(ecret_min_hig, 1)) + ' g'
+            ws['D215'] = str(round(ecret_min_low, 1)) + ' g'
+            ws['D216'] = str(round(ecret_min_hig, 1)) + ' g'
         except Exception:
             ecret_min_low = 0
             ecret_min_hig = 0
@@ -118,8 +137,8 @@ class Adams(ho.Hums):
         if ecret_min_low and ecret_min_hig:
             dic_ecrt_low  = {key:self.hums_attributs[key] for key in ['Ecretage -20 axe X', 'Ecretage -20 axe Y', 'Ecretage -20 axe Z']}
             dic_ecrt_high = {key:self.hums_attributs[key] for key in ['Ecretage 70 axe X' , 'Ecretage 70 axe Y' , 'Ecretage 70 axe Z'] }
-            ws['F218']    = str(min(dic_ecrt_low.items(),  key=itemgetter(1))[0][13:])
-            ws['F219']    = str(min(dic_ecrt_high.items(), key=itemgetter(1))[0][12:])
+            ws['F215']    = str(min(dic_ecrt_low.items(),  key=itemgetter(1))[0][13:])
+            ws['F216']    = str(min(dic_ecrt_high.items(), key=itemgetter(1))[0][12:])
 
     def test_adams(self, ws):
         #Thresholded values checked
@@ -141,23 +160,45 @@ class Adams(ho.Hums):
         self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur Y', 'Resultat de la valeur de reference de vibration sur Y', 'G167', 'PERCENT')
         self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur Z', 'Resultat de la valeur de reference de vibration sur Z', 'G168', 'PERCENT')
         self.threshold_check(ws, 'T_src', 'Ecart max de l\'analyse SRC X', 'G170')
-        self.threshold_check(ws, 'T_src', 'Ecart max de l\'analyse SRC X', 'G172')
-        self.threshold_check(ws, 'T_src', 'Ecart max de l\'analyse SRC X', 'G173')
+        self.threshold_check(ws, 'T_src', 'Ecart max de l\'analyse SRC Y', 'G172')
+        self.threshold_check(ws, 'T_src', 'Ecart max de l\'analyse SRC Z', 'G174')
         self.status_check(ws, 'S_gabarit_dim', 'G139')
         self.status_check(ws, 'S_led', 'G152')
 
+        # Max of transverse axis identification
         try:
-            max_transverse = max(self.hums_attributs['Shock (transverse X) axe Y'],self.hums_attributs['Shock (transverse X) axe Z'])
-            dic_transverse  = {key:self.hums_attributs[key] for key in ['Shock (transverse X) axe Y', 'Shock (transverse X) axe Z']}
-            name = str(max(dic_transverse.items(),  key=itemgetter(1))[0])
-            self.threshold_check(ws, 'T_src_trans', name, 'G171')
+            dic_transverse_x = {key:self.hums_attributs[key] for key in ['Shock (transverse X) axe Y', 'Shock (transverse X) axe Z']}
+            dic_transverse_y = {key:self.hums_attributs[key] for key in ['Shock (transverse Y) axe X', 'Shock (transverse Y) axe Z']}
+            dic_transverse_z = {key:self.hums_attributs[key] for key in ['Shock (transverse Z) axe X', 'Shock (transverse Z) axe Y']}
+            col_name_x = str(max(dic_transverse_x.items(), key=itemgetter(1))[0])
+            col_name_y = str(max(dic_transverse_y.items(), key=itemgetter(1))[0])
+            col_name_z = str(max(dic_transverse_z.items(), key=itemgetter(1))[0])
+            
+
+            if self.threshold_check(ws, 'T_src_trans', col_name_x) or tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse X) axe X'], self.hums_attributs['Shock (transverse X) axe Y'], self.hums_attributs['Shock (transverse X) axe Z']], self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe X']):
+                ws['G171'] = 'OK'
+            else :
+                ws['G171'] = 'NOK'
+                log.warning('Testing NOK for transverse x on product {}'.format(self.SN))
+
+            if self.threshold_check(ws, 'T_src_trans', col_name_y) or tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse Y) axe X'], self.hums_attributs['Shock (transverse Y) axe Y'], self.hums_attributs['Shock (transverse Y) axe Z']], self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe Y']):
+                ws['G173'] = 'OK'
+            else :
+                ws['G173'] = 'NOK'
+                log.warning('Testing NOK for transverse y on product {}'.format(self.SN))
+
+            if self.threshold_check(ws, 'T_src_trans', col_name_z) or tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse Z) axe X'], self.hums_attributs['Shock (transverse Z) axe Y'], self.hums_attributs['Shock (transverse Z) axe Z']], self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe Z']):
+                ws['G175'] = 'OK'
+            else :
+                ws['G175'] = 'NOK'
+                log.warning('Testing NOK for transverse z on product {}'.format(self.SN))
+
+            self.threshold_check(ws, 'T_src_trans', col_name_x, 'G171')
+            self.threshold_check(ws, 'T_src_trans', col_name_y, 'G173')
+            self.threshold_check(ws, 'T_src_trans', col_name_z, 'G175')
         except Exception:
             log.error('Transverse result failed on: {}'.format(self.SN))
         
-        max_transverse = max(self.hums_attributs['Shock (transverse X) axe Y'],self.hums_attributs['Shock (transverse X) axe Z'])
-        dic_transverse  = {key:self.hums_attributs[key] for key in ['Shock (transverse X) axe Y', 'Shock (transverse X) axe Z']}
-        name = str(max(dic_transverse.items(),  key=itemgetter(1))[0])
-        self.threshold_check(ws, 'T_src_trans', name, 'G171')
 
 
 

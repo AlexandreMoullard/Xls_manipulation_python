@@ -49,19 +49,19 @@ class OptionsWindow():
             Label(master, textvariable=self.resultTextBdt0Var, style="Error.TLabel").grid(row=2, column=0, columnspan=2)
             
             #Champ banc de test étape 1
-            Label(master, text="Banc de test etape 1 (.csv)", style="BW.TLabel").grid(row=3, column=0)
+            Label(master, text="Banc de test etape 1 (.csv séparateur : \",\")", style="BW.TLabel").grid(row=3, column=0)
             Label(master, textvariable=self.dirBdt1Var, style="Directory.TLabel").grid(row=4, column=0)
             Button(master, text="...", command=lambda: self.selectCSV(1)).grid(row=4, column=1)
             Label(master, textvariable=self.resultTextBdt1Var, style="Error.TLabel").grid(row=5, column=0, columnspan=2)
 
             #Champ banc de test étape 2
-            Label(master, text="Banc de test etape 2 (.csv)", style="BW.TLabel").grid(row=6, column=0)
+            Label(master, text="Banc de test etape 2 (.csv séparateur : \",\")", style="BW.TLabel").grid(row=6, column=0)
             Label(master, textvariable=self.dirBdt2Var, style="Directory.TLabel").grid(row=7, column=0)
             Button(master, text="...", command= lambda: self.selectCSV(2)).grid(row=7, column=1)
             Label(master, textvariable=self.resultTextBdt2Var, style="Error.TLabel").grid(row=8, column=0, columnspan=2)
 
             #Champ export acceptation
-            Label(master, text="Export banc acceptation (.csv)", style="BW.TLabel").grid(row=9, column=0)
+            Label(master, text="Export banc acceptation (.csv séparateur : \";\")", style="BW.TLabel").grid(row=9, column=0)
             Label(master, textvariable=self.dirExp, style="Directory.TLabel").grid(row=10, column=0)
             Button(master, text="...", command=lambda: self.selectCSV(3)).grid(row=10, column=1)
             Label(master, textvariable=self.resultTextBdt3Var, style="Error.TLabel").grid(row=11, column=0, columnspan=2)
