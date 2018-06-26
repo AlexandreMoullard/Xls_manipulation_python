@@ -70,12 +70,12 @@ class Adams(ho.Hums):
 
         #Humidity
         self.writing_tester(ws, 'F158', 'Humidite Hums 2', '%', 1)
-        self.writing_tester(ws, 'F159', 'Humidite Hums 3', '%', 1)
-        self.writing_tester(ws, 'F160', 'Humidite Hums 1', '%', 1)
+        self.writing_tester(ws, 'F159', 'Humidite Hums 1', '%', 1)
+        self.writing_tester(ws, 'F160', 'Humidite Hums 3', '%', 1)
 
         self.writing_tester(ws, 'D158', 'Humidite Ref 2', '%', 1)
-        self.writing_tester(ws, 'D159', 'Humidite Ref 3', '%', 1)
-        self.writing_tester(ws, 'D160', 'Humidite Ref 1', '%', 1)
+        self.writing_tester(ws, 'D159', 'Humidite Ref 1', '%', 1)
+        self.writing_tester(ws, 'D160', 'Humidite Ref 3', '%', 1)
 
         #Vibrations
         self.writing_tester(ws, 'F166', 'Resultat de la mesure de vibration sur X', ' grms', 2)
@@ -154,8 +154,8 @@ class Adams(ho.Hums):
         self.tolerence_check(ws, 'R_temperature', 'Temperature Hums 3', 'Temperature Ref 3', 'G155')
         self.tolerence_check(ws, 'R_temperature', 'Temperature Hums 1', 'Temperature Ref 1', 'G156')
         self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 2', 'Humidite Ref 2', 'G158')
-        self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 3', 'Humidite Ref 3', 'G159')
-        self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 1', 'Humidite Ref 1', 'G160')
+        self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 3', 'Humidite Ref 1', 'G159')
+        self.tolerence_check(ws, 'R_humidity', 'Humidite Hums 1', 'Humidite Ref 3', 'G160')
         self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur X', 'Resultat de la valeur de reference de vibration sur X', 'G166', 'PERCENT')
         self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur Y', 'Resultat de la valeur de reference de vibration sur Y', 'G167', 'PERCENT')
         self.tolerence_check(ws, 'P_vibration', 'Resultat de la mesure de vibration sur Z', 'Resultat de la valeur de reference de vibration sur Z', 'G168', 'PERCENT')
@@ -167,35 +167,36 @@ class Adams(ho.Hums):
 
         # Max of transverse axis identification
         try:
+            #pdb.set_trace()
             dic_transverse_x = {key:self.hums_attributs[key] for key in ['Shock (transverse X) axe Y', 'Shock (transverse X) axe Z']}
             dic_transverse_y = {key:self.hums_attributs[key] for key in ['Shock (transverse Y) axe X', 'Shock (transverse Y) axe Z']}
             dic_transverse_z = {key:self.hums_attributs[key] for key in ['Shock (transverse Z) axe X', 'Shock (transverse Z) axe Y']}
-            col_name_x = str(max(dic_transverse_x.items(), key=itemgetter(1))[0])
-            col_name_y = str(max(dic_transverse_y.items(), key=itemgetter(1))[0])
-            col_name_z = str(max(dic_transverse_z.items(), key=itemgetter(1))[0])
+            col_name_x   = str(max(dic_transverse_x.items(), key=itemgetter(1))[0])
+            col_name_y   = str(max(dic_transverse_y.items(), key=itemgetter(1))[0])
+            col_name_z   = str(max(dic_transverse_z.items(), key=itemgetter(1))[0])
+            perc_trans_x = 100*self.hums_attributs[col_name_x]/self.hums_attributs['Shock (transverse X) axe X']
+            perc_trans_y = 100*self.hums_attributs[col_name_y]/self.hums_attributs['Shock (transverse Y) axe Y']
+            perc_trans_z = 100*self.hums_attributs[col_name_z]/self.hums_attributs['Shock (transverse Z) axe Z']
             
 
-            if self.threshold_check(ws, 'T_src_trans', col_name_x) or tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse X) axe X'], self.hums_attributs['Shock (transverse X) axe Y'], self.hums_attributs['Shock (transverse X) axe Z']], self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe X']):
+            if self.threshold_check(ws, 'T_src_trans', perc_trans_x) or self.tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse X) axe X'], self.hums_attributs['Shock (transverse X) axe Y'], self.hums_attributs['Shock (transverse X) axe Z']], self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe X']):
                 ws['G171'] = 'OK'
             else :
                 ws['G171'] = 'NOK'
                 log.warning('Testing NOK for transverse x on product {}'.format(self.SN))
 
-            if self.threshold_check(ws, 'T_src_trans', col_name_y) or tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse Y) axe X'], self.hums_attributs['Shock (transverse Y) axe Y'], self.hums_attributs['Shock (transverse Y) axe Z']], self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe Y']):
+            if self.threshold_check(ws, 'T_src_trans', perc_trans_y) or self.tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse Y) axe X'], self.hums_attributs['Shock (transverse Y) axe Y'], self.hums_attributs['Shock (transverse Y) axe Z']], self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe Y']):
                 ws['G173'] = 'OK'
             else :
                 ws['G173'] = 'NOK'
                 log.warning('Testing NOK for transverse y on product {}'.format(self.SN))
 
-            if self.threshold_check(ws, 'T_src_trans', col_name_z) or tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse Z) axe X'], self.hums_attributs['Shock (transverse Z) axe Y'], self.hums_attributs['Shock (transverse Z) axe Z']], self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe Z']):
+            if self.threshold_check(ws, 'T_src_trans', perc_trans_z) or self.tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse Z) axe X'], self.hums_attributs['Shock (transverse Z) axe Y'], self.hums_attributs['Shock (transverse Z) axe Z']], self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe Z']):
                 ws['G175'] = 'OK'
             else :
                 ws['G175'] = 'NOK'
                 log.warning('Testing NOK for transverse z on product {}'.format(self.SN))
 
-            self.threshold_check(ws, 'T_src_trans', col_name_x, 'G171')
-            self.threshold_check(ws, 'T_src_trans', col_name_y, 'G173')
-            self.threshold_check(ws, 'T_src_trans', col_name_z, 'G175')
         except Exception:
             log.error('Transverse result failed on: {}'.format(self.SN))
         
