@@ -149,7 +149,7 @@ class Hums:
         try:
             # if there is no cell defined, the function returns a bool on a percent mode test taken from a list of 3 values [x,y,z]
             if not result_cell:
-                tol = (self.hums_attributs[tolerence]/100)*abs(self.hums_attributs[reference])
+                tol = (self.waited_test_result[tolerence]/100)*abs(self.hums_attributs[reference])
                 value = (tested_attribut[0]**2 + tested_attribut[1]**2 + tested_attribut[2]**2)**(1/2)
                 return abs(self.hums_attributs[reference]) - tol <= abs(value) <=  abs(self.hums_attributs[reference]) + tol
 

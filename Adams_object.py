@@ -191,9 +191,10 @@ class Adams(ho.Hums):
                 ws['G173'] = 'NOK'
                 log.warning('Testing NOK for transverse y on product {}'.format(self.SN))
 
-            if self.threshold_check(ws, 'T_src_trans', perc_trans_z) or self.tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse Z) axe X'], self.hums_attributs['Shock (transverse Z) axe Y'], self.hums_attributs['Shock (transverse Z) axe Z']], self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe Z']):
+            if self.threshold_check(ws, 'T_src_trans', perc_trans_z) or self.tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse Z) axe X'], self.hums_attributs['Shock (transverse Z) axe Y'], self.hums_attributs['Shock (transverse Z) axe Z']], 'Valeur de reference des chocs post-calibration sur l\'axe Z'):
                 ws['G175'] = 'OK'
             else :
+                #pdb.set_trace()
                 ws['G175'] = 'NOK'
                 log.warning('Testing NOK for transverse z on product {}'.format(self.SN))
 
