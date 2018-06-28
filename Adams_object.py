@@ -179,13 +179,13 @@ class Adams(ho.Hums):
             perc_trans_z = 100*self.hums_attributs[col_name_z]/self.hums_attributs['Shock (transverse Z) axe Z']
             
 
-            if self.threshold_check(ws, 'T_src_trans', perc_trans_x) or self.tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse X) axe X'], self.hums_attributs['Shock (transverse X) axe Y'], self.hums_attributs['Shock (transverse X) axe Z']], self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe X']):
+            if self.threshold_check(ws, 'T_src_trans', perc_trans_x) or self.tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse X) axe X'], self.hums_attributs['Shock (transverse X) axe Y'], self.hums_attributs['Shock (transverse X) axe Z']], 'Valeur de reference des chocs post-calibration sur l\'axe X'):
                 ws['G171'] = 'OK'
             else :
                 ws['G171'] = 'NOK'
                 log.warning('Testing NOK for transverse x on product {}'.format(self.SN))
 
-            if self.threshold_check(ws, 'T_src_trans', perc_trans_y) or self.tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse Y) axe X'], self.hums_attributs['Shock (transverse Y) axe Y'], self.hums_attributs['Shock (transverse Y) axe Z']], self.hums_attributs['Valeur de reference des chocs post-calibration sur l\'axe Y']):
+            if self.threshold_check(ws, 'T_src_trans', perc_trans_y) or self.tolerence_check(ws, 'P_src_vect', [self.hums_attributs['Shock (transverse Y) axe X'], self.hums_attributs['Shock (transverse Y) axe Y'], self.hums_attributs['Shock (transverse Y) axe Z']], 'Valeur de reference des chocs post-calibration sur l\'axe Y'):
                 ws['G173'] = 'OK'
             else :
                 ws['G173'] = 'NOK'
